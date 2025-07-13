@@ -1,5 +1,5 @@
 
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { Header } from './components/Header';
 import { ThesisInput } from './components/ThesisInput';
 import { MCQReviewCard } from './components/MCQReviewCard';
@@ -13,6 +13,20 @@ const App: React.FC = () => {
   const [currentMcq, setCurrentMcq] = useState<MCQ | null>(null);
   const [savedMcqs, setSavedMcqs] = useState<MCQ[]>([]);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchMcqs = async () => {
+      try {
+        const res = await fetch('/mcqs');
+        if (!res.ok) throw new Error('Failed to load saved questions');
+        const data = await res.json();
+        setSavedMcqs(data);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+    fetchMcqs();
+  }, []);
 
   const handleGenerateMCQ = useCallback(async (text: string) => {
     if (!text.trim()) {
@@ -35,19 +49,22 @@ const App: React.FC = () => {
     }
   }, []);
 
-  const handleSaveMCQ = (mcqToSave: MCQ) => {
-    setSavedMcqs(prevMcqs => {
-      const existingIndex = prevMcqs.findIndex(mcq => mcq.id === mcqToSave.id);
-      if (existingIndex > -1) {
-        // It's an edit, replace the item
-        const newMcqs = [...prevMcqs];
-        newMcqs[existingIndex] = mcqToSave;
-        return newMcqs;
-      } else {
-        // It's a new save, add it
-        return [...prevMcqs, mcqToSave];
-      }
+  const handleSaveMCQ = async (mcqToSave: MCQ) => {
+    const exists = savedMcqs.some(m => m.id === mcqToSave.id);
+    const method = exists ? 'PUT' : 'POST';
+    const url = exists ? `/mcqs/${mcqToSave.id}` : '/mcqs';
+    await fetch(url, {
+      method,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(mcqToSave)
     });
+
+    if (exists) {
+      setSavedMcqs(prev => prev.map(m => (m.id === mcqToSave.id ? mcqToSave : m)));
+    } else {
+      setSavedMcqs(prev => [...prev, mcqToSave]);
+    }
+
     setCurrentMcq(null);
     setApiState(APIState.Idle);
   };
@@ -66,7 +83,8 @@ const App: React.FC = () => {
     }
   };
   
-  const handleDeleteMCQ = (mcqId: string) => {
+  const handleDeleteMCQ = async (mcqId: string) => {
+    await fetch(`/mcqs/${mcqId}`, { method: 'DELETE' });
     setSavedMcqs(prevMcqs => prevMcqs.filter(mcq => mcq.id !== mcqId));
   };
 
