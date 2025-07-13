@@ -1,9 +1,24 @@
-import express from 'express';
+import express, { Request, Response } from 'express';
 import litesql from 'litesql';
 import { randomUUID } from 'crypto';
 import cors from 'cors';
+import type { MCQ } from '../types';
 
 const db = litesql.db('mcqs.sqlite');
+
+interface MCQRow {
+  id: string;
+  stem: string;
+  correctAnswerId: string;
+  citationSource: string;
+}
+
+interface OptionRow {
+  rowid: number;
+  id: string;
+  mcqId: string;
+  text: string;
+}
 
 // Initialize tables if they don't exist
 // litesql will ignore creation if table already exists
@@ -31,14 +46,14 @@ app.use(cors());
 app.use(express.json());
 
 // Helper to fetch MCQs with options
-const getAllMcqs = async () => {
-  const mcqs = await new Promise<any[]>((resolve, reject) => {
-    mcqsTable.find().all((err: Error | null, rows: any[]) => {
+const getAllMcqs = async (): Promise<MCQ[]> => {
+  const mcqs = await new Promise<MCQRow[]>((resolve, reject) => {
+    mcqsTable.find().all((err: Error | null, rows: MCQRow[]) => {
       if (err) reject(err); else resolve(rows);
     });
   });
-  const options = await new Promise<any[]>((resolve, reject) => {
-    optionsTable.find().all((err: Error | null, rows: any[]) => {
+  const options = await new Promise<OptionRow[]>((resolve, reject) => {
+    optionsTable.find().all((err: Error | null, rows: OptionRow[]) => {
       if (err) reject(err); else resolve(rows);
     });
   });
@@ -51,7 +66,7 @@ const getAllMcqs = async () => {
   }));
 };
 
-app.get('/mcqs', async (_req, res) => {
+app.get('/mcqs', async (_req: Request, res: Response) => {
   try {
     const data = await getAllMcqs();
     res.json(data);
@@ -60,7 +75,7 @@ app.get('/mcqs', async (_req, res) => {
   }
 });
 
-app.post('/mcqs', async (req, res) => {
+app.post('/mcqs', async (req: Request, res: Response) => {
   const mcq = req.body;
   const id = mcq.id || randomUUID();
   try {
@@ -73,13 +88,13 @@ app.post('/mcqs', async (req, res) => {
       });
     }
     const data = await getAllMcqs();
-    res.status(201).json(data.find((m: any) => m.id === id));
+    res.status(201).json(data.find(m => m.id === id));
   } catch (err: any) {
     res.status(500).json({ error: err.message });
   }
 });
 
-app.put('/mcqs/:id', async (req, res) => {
+app.put('/mcqs/:id', async (req: Request, res: Response) => {
   const id = req.params.id;
   const mcq = req.body;
   try {
@@ -101,7 +116,7 @@ app.put('/mcqs/:id', async (req, res) => {
   }
 });
 
-app.delete('/mcqs/:id', async (req, res) => {
+app.delete('/mcqs/:id', async (req: Request, res: Response) => {
   const id = req.params.id;
   try {
     await new Promise((resolve, reject) => {
