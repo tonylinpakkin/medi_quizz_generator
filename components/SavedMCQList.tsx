@@ -78,7 +78,7 @@ const SavedMCQItem: React.FC<SavedMCQItemProps> = ({ mcq, onEdit, onDelete }) =>
       <div className="pt-2">
         <div className="flex items-center space-x-2 text-sm text-slate-500 bg-slate-100 p-2 rounded-md">
             <FileTextIcon className="w-4 h-4 text-slate-400"/>
-            <span>{mcq.citation.source}: {mcq.citation.id}</span>
+            <span>{mcq.citation.source}</span>
         </div>
       </div>
       

@@ -6,7 +6,6 @@ export interface MCQOption {
 
 export interface Citation {
   source: string;
-  id: string;
 }
 
 export interface MCQ {
