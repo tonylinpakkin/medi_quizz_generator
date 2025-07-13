@@ -35,10 +35,9 @@ const mcqSchema = {
             type: Type.OBJECT,
             description: "A citation for the information used in the question.",
             properties: {
-                source: { type: Type.STRING, description: "The source of the citation, which must be 'PubMed'." },
-                id: { type: Type.STRING, description: "A fictional but plausible-looking PubMed ID (PMID), formatted as an 8-digit number." }
+                source: { type: Type.STRING, description: "The source of the citation, which must be 'PubMed'." }
             },
-            required: ["source", "id"]
+            required: ["source"]
         }
     },
     required: ["stem", "options", "correctAnswerId", "citation"]
