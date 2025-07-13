@@ -1,6 +1,7 @@
 import express from 'express';
 import litesql from 'litesql';
 import { randomUUID } from 'crypto';
+import cors from 'cors';
 
 const db = litesql.db('mcqs.sqlite');
 
@@ -26,6 +27,7 @@ const mcqsTable = new litesql.Table('mcqs', 'id', db);
 const optionsTable = new litesql.Table('options', 'rowid', db);
 
 const app = express();
+app.use(cors());
 app.use(express.json());
 
 // Helper to fetch MCQs with options
