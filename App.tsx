@@ -14,10 +14,12 @@ const App: React.FC = () => {
   const [savedMcqs, setSavedMcqs] = useState<MCQ[]>([]);
   const [error, setError] = useState<string | null>(null);
 
+  const API_BASE = 'http://localhost:3001/mcqs';
+
   useEffect(() => {
     const fetchMcqs = async () => {
       try {
-        const res = await fetch('/mcqs');
+        const res = await fetch(API_BASE);
         if (!res.ok) throw new Error('Failed to load saved questions');
         const data = await res.json();
         setSavedMcqs(data);
@@ -52,7 +54,7 @@ const App: React.FC = () => {
   const handleSaveMCQ = async (mcqToSave: MCQ) => {
     const exists = savedMcqs.some(m => m.id === mcqToSave.id);
     const method = exists ? 'PUT' : 'POST';
-    const url = exists ? `/mcqs/${mcqToSave.id}` : '/mcqs';
+    const url = exists ? `${API_BASE}/${mcqToSave.id}` : API_BASE;
     await fetch(url, {
       method,
       headers: { 'Content-Type': 'application/json' },
@@ -84,7 +86,7 @@ const App: React.FC = () => {
   };
   
   const handleDeleteMCQ = async (mcqId: string) => {
-    await fetch(`/mcqs/${mcqId}`, { method: 'DELETE' });
+    await fetch(`${API_BASE}/${mcqId}`, { method: 'DELETE' });
     setSavedMcqs(prevMcqs => prevMcqs.filter(mcq => mcq.id !== mcqId));
   };
 
