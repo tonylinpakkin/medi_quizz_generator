@@ -1,0 +1,122 @@
+
+import React, { useState, useCallback } from 'react';
+import { Header } from './components/Header';
+import { ThesisInput } from './components/ThesisInput';
+import { MCQReviewCard } from './components/MCQReviewCard';
+import { SavedMCQList } from './components/SavedMCQList';
+import { generateMCQFromText } from './services/geminiService';
+import { MCQ, APIState } from './types';
+import { LoadingSpinner } from './components/icons';
+
+const App: React.FC = () => {
+  const [apiState, setApiState] = useState<APIState>(APIState.Idle);
+  const [currentMcq, setCurrentMcq] = useState<MCQ | null>(null);
+  const [savedMcqs, setSavedMcqs] = useState<MCQ[]>([]);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleGenerateMCQ = useCallback(async (text: string) => {
+    if (!text.trim()) {
+      setError("Please enter some text from your thesis.");
+      return;
+    }
+    setApiState(APIState.Loading);
+    setError(null);
+    setCurrentMcq(null);
+
+    try {
+      const generatedMcq = await generateMCQFromText(text);
+      setCurrentMcq(generatedMcq);
+      setApiState(APIState.Success);
+    } catch (err) {
+      console.error(err);
+      const errorMessage = err instanceof Error ? err.message : "An unknown error occurred.";
+      setError(`Failed to generate MCQ. ${errorMessage}`);
+      setApiState(APIState.Error);
+    }
+  }, []);
+
+  const handleSaveMCQ = (mcqToSave: MCQ) => {
+    setSavedMcqs(prevMcqs => {
+      const existingIndex = prevMcqs.findIndex(mcq => mcq.id === mcqToSave.id);
+      if (existingIndex > -1) {
+        // It's an edit, replace the item
+        const newMcqs = [...prevMcqs];
+        newMcqs[existingIndex] = mcqToSave;
+        return newMcqs;
+      } else {
+        // It's a new save, add it
+        return [...prevMcqs, mcqToSave];
+      }
+    });
+    setCurrentMcq(null);
+    setApiState(APIState.Idle);
+  };
+  
+  const handleCancelReview = () => {
+    setCurrentMcq(null);
+    setApiState(APIState.Idle);
+    setError(null);
+  };
+
+  const handleEditMCQ = (mcqId: string) => {
+    const mcqToEdit = savedMcqs.find(mcq => mcq.id === mcqId);
+    if (mcqToEdit) {
+      setCurrentMcq(mcqToEdit);
+      setApiState(APIState.Success); 
+    }
+  };
+  
+  const handleDeleteMCQ = (mcqId: string) => {
+    setSavedMcqs(prevMcqs => prevMcqs.filter(mcq => mcq.id !== mcqId));
+  };
+
+
+  return (
+    <div className="min-h-screen bg-slate-50 font-sans text-slate-800">
+      <Header />
+      <main className="container mx-auto px-4 py-8 max-w-4xl">
+        
+        {currentMcq ? (
+          <div className="animate-fade-in">
+             <MCQReviewCard 
+                key={currentMcq.id}
+                initialMcq={currentMcq}
+                onSave={handleSaveMCQ}
+                onCancel={handleCancelReview}
+             />
+          </div>
+        ) : (
+          <>
+            <ThesisInput onGenerate={handleGenerateMCQ} isLoading={apiState === APIState.Loading} />
+
+            {apiState === APIState.Loading && (
+              <div className="flex flex-col items-center justify-center mt-12 text-center bg-white p-8 rounded-lg shadow-md border border-slate-200">
+                <LoadingSpinner className="w-12 h-12 text-blue-600" />
+                <p className="mt-4 text-lg font-medium text-slate-600">AI is drafting your question...</p>
+                <p className="text-sm text-slate-500">This may take a few moments.</p>
+              </div>
+            )}
+
+            {apiState === APIState.Error && (
+              <div className="mt-8 p-4 bg-red-100 border border-red-300 text-red-800 rounded-lg">
+                <h3 className="font-bold">Error</h3>
+                <p>{error}</p>
+              </div>
+            )}
+
+            <SavedMCQList 
+              mcqs={savedMcqs}
+              onEdit={handleEditMCQ}
+              onDelete={handleDeleteMCQ}
+            />
+          </>
+        )}
+      </main>
+      <footer className="text-center py-4 text-sm text-slate-400">
+        <p>&copy; 2024 MCQ Drafter AI. For educational and research purposes only.</p>
+      </footer>
+    </div>
+  );
+};
+
+export default App;

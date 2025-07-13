@@ -1,0 +1,5 @@
+{
+  "name": "MCQ Drafter AI",
+  "description": "An AI-powered tool for busy doctors to draft single-best-answer Multiple Choice Questions (MCQs) from thesis paragraphs, including simulated PubMed citations and a mandatory human-review workflow with a bias detector.",
+  "requestFramePermissions": []
+}
