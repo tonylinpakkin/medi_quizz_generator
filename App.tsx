@@ -14,6 +14,7 @@ const App: React.FC = () => {
   const [currentMcq, setCurrentMcq] = useState<MCQ | null>(null);
   const [savedMcqs, setSavedMcqs] = useState<MCQ[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<'generate' | 'saved'>('generate');
 
   useEffect(() => {
     getAllMCQs().then(setSavedMcqs).catch((err) => {
@@ -82,40 +83,60 @@ const App: React.FC = () => {
     <div className="min-h-screen bg-slate-50 font-sans text-slate-800">
       <Header />
       <main className="container mx-auto px-4 py-8 max-w-4xl">
-        
+        <nav className="mb-6 border-b border-slate-200 flex space-x-6">
+          <button
+            className={`pb-2 ${activeTab === 'generate' ? 'border-b-2 border-blue-600 text-blue-600 font-semibold' : 'text-slate-600'}`}
+            onClick={() => setActiveTab('generate')}
+          >
+            Generate MCQ
+          </button>
+          <button
+            className={`pb-2 ${activeTab === 'saved' ? 'border-b-2 border-blue-600 text-blue-600 font-semibold' : 'text-slate-600'}`}
+            onClick={() => setActiveTab('saved')}
+          >
+            Saved MCQs
+          </button>
+        </nav>
+
         {currentMcq ? (
           <div className="animate-fade-in">
-             <MCQReviewCard 
-                key={currentMcq.id}
-                initialMcq={currentMcq}
-                onSave={handleSaveMCQ}
-                onCancel={handleCancelReview}
-             />
+            <MCQReviewCard
+              key={currentMcq.id}
+              initialMcq={currentMcq}
+              onSave={handleSaveMCQ}
+              onCancel={handleCancelReview}
+            />
           </div>
         ) : (
           <>
-            <ThesisInput onGenerate={handleGenerateMCQ} isLoading={apiState === APIState.Loading} />
+            {activeTab === 'generate' && (
+              <>
+                <ThesisInput onGenerate={handleGenerateMCQ} isLoading={apiState === APIState.Loading} />
 
-            {apiState === APIState.Loading && (
-              <div className="flex flex-col items-center justify-center mt-12 text-center bg-white p-8 rounded-lg shadow-md border border-slate-200">
-                <LoadingSpinner className="w-12 h-12 text-blue-600" />
-                <p className="mt-4 text-lg font-medium text-slate-600">AI is drafting your question...</p>
-                <p className="text-sm text-slate-500">This may take a few moments.</p>
-              </div>
+                {apiState === APIState.Loading && (
+                  <div className="flex flex-col items-center justify-center mt-12 text-center bg-white p-8 rounded-lg shadow-md border border-slate-200">
+                    <LoadingSpinner className="w-12 h-12 text-blue-600" />
+                    <p className="mt-4 text-lg font-medium text-slate-600">AI is drafting your question...</p>
+                    <p className="text-sm text-slate-500">This may take a few moments.</p>
+                  </div>
+                )}
+
+                {apiState === APIState.Error && (
+                  <div className="mt-8 p-4 bg-red-100 border border-red-300 text-red-800 rounded-lg">
+                    <h3 className="font-bold">Error</h3>
+                    <p>{error}</p>
+                  </div>
+                )}
+              </>
             )}
 
-            {apiState === APIState.Error && (
-              <div className="mt-8 p-4 bg-red-100 border border-red-300 text-red-800 rounded-lg">
-                <h3 className="font-bold">Error</h3>
-                <p>{error}</p>
-              </div>
+            {activeTab === 'saved' && (
+              <SavedMCQList
+                mcqs={savedMcqs}
+                onEdit={handleEditMCQ}
+                onDelete={handleDeleteMCQ}
+              />
             )}
-
-            <SavedMCQList 
-              mcqs={savedMcqs}
-              onEdit={handleEditMCQ}
-              onDelete={handleDeleteMCQ}
-            />
           </>
         )}
       </main>
