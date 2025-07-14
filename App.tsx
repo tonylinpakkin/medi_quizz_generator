@@ -1,10 +1,11 @@
 
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { Header } from './components/Header';
 import { ThesisInput } from './components/ThesisInput';
 import { MCQReviewCard } from './components/MCQReviewCard';
 import { SavedMCQList } from './components/SavedMCQList';
 import { generateMCQFromText } from './services/geminiService';
+import { getAllMCQs, saveMCQ, deleteMCQ as deleteMCQFromDb } from './services/mcqStorage';
 import { MCQ, APIState } from './types';
 import { LoadingSpinner } from './components/icons';
 
@@ -13,6 +14,12 @@ const App: React.FC = () => {
   const [currentMcq, setCurrentMcq] = useState<MCQ | null>(null);
   const [savedMcqs, setSavedMcqs] = useState<MCQ[]>([]);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    getAllMCQs().then(setSavedMcqs).catch((err) => {
+      console.error('Failed to load MCQs from IndexedDB', err);
+    });
+  }, []);
 
   const handleGenerateMCQ = useCallback(async (text: string) => {
     if (!text.trim()) {
@@ -36,15 +43,14 @@ const App: React.FC = () => {
   }, []);
 
   const handleSaveMCQ = (mcqToSave: MCQ) => {
+    saveMCQ(mcqToSave).catch(err => console.error('Failed to save MCQ', err));
     setSavedMcqs(prevMcqs => {
       const existingIndex = prevMcqs.findIndex(mcq => mcq.id === mcqToSave.id);
       if (existingIndex > -1) {
-        // It's an edit, replace the item
         const newMcqs = [...prevMcqs];
         newMcqs[existingIndex] = mcqToSave;
         return newMcqs;
       } else {
-        // It's a new save, add it
         return [...prevMcqs, mcqToSave];
       }
     });
@@ -67,6 +73,7 @@ const App: React.FC = () => {
   };
   
   const handleDeleteMCQ = (mcqId: string) => {
+    deleteMCQFromDb(mcqId).catch(err => console.error('Failed to delete MCQ', err));
     setSavedMcqs(prevMcqs => prevMcqs.filter(mcq => mcq.id !== mcqId));
   };
 
