@@ -86,6 +86,16 @@ export const MCQReviewCard: React.FC<MCQReviewCardProps> = ({ initialMcq, onSave
                 <span>{mcq.citation.source}</span>
             </div>
         </div>
+
+        <label className="block pt-2">
+          <span className="font-semibold text-slate-600">Answer Rationale</span>
+          <textarea
+            value={mcq.rationale}
+            onChange={(e) => setMcq({ ...mcq, rationale: e.target.value })}
+            rows={3}
+            className="mt-1 w-full p-2 bg-white border border-slate-400 text-slate-900 rounded-md focus:ring-2 focus:ring-blue-500"
+          />
+        </label>
       </div>
       
       <div className="mt-6 pt-4 border-t border-slate-200 flex justify-end items-center space-x-3">
