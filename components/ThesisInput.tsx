@@ -1,6 +1,7 @@
 
 import React, { useState } from 'react';
 import { SparklesIcon } from './icons';
+import { useTranslation } from '../translations';
 
 interface ThesisInputProps {
   onGenerate: (text: string) => void;
@@ -9,6 +10,7 @@ interface ThesisInputProps {
 
 export const ThesisInput: React.FC<ThesisInputProps> = ({ onGenerate, isLoading }) => {
   const [text, setText] = useState('');
+  const t = useTranslation();
 
   const handleGenerateClick = () => {
     onGenerate(text);
@@ -16,8 +18,8 @@ export const ThesisInput: React.FC<ThesisInputProps> = ({ onGenerate, isLoading 
 
   return (
     <div className="bg-white p-6 rounded-lg shadow-md border border-slate-200">
-      <h2 className="text-xl font-semibold text-slate-700 mb-2">1. Paste Your Thesis Paragraph</h2>
-      <p className="text-slate-500 mb-4">Provide a paragraph from your thesis or clinical notes. The AI will use this context to create a question.</p>
+      <h2 className="text-xl font-semibold text-slate-700 mb-2">{t('pasteThesis')}</h2>
+      <p className="text-slate-500 mb-4">{t('thesisHelp')}</p>
       <textarea
         value={text}
         onChange={(e) => setText(e.target.value)}
@@ -32,7 +34,7 @@ export const ThesisInput: React.FC<ThesisInputProps> = ({ onGenerate, isLoading 
           className="flex items-center justify-center px-6 py-3 bg-blue-600 text-white font-semibold rounded-md shadow-sm hover:bg-blue-700 disabled:bg-slate-400 disabled:cursor-not-allowed transition-colors duration-200"
         >
           <SparklesIcon className="w-5 h-5 mr-2" />
-          {isLoading ? 'Generating...' : 'Generate MCQ'}
+          {isLoading ? t('generating') : t('generateButton')}
         </button>
       </div>
     </div>

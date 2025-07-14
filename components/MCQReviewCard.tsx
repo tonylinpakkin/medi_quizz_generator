@@ -3,6 +3,7 @@ import React, { useState, useMemo } from 'react';
 import type { MCQ } from '../types';
 import { detectBias } from '../services/biasDetector';
 import { AlertTriangleIcon, SaveIcon, FileTextIcon } from './icons';
+import { useTranslation } from '../translations';
 
 interface MCQReviewCardProps {
   initialMcq: MCQ;
@@ -13,6 +14,7 @@ interface MCQReviewCardProps {
 export const MCQReviewCard: React.FC<MCQReviewCardProps> = ({ initialMcq, onSave, onCancel }) => {
   const [mcq, setMcq] = useState<MCQ>(initialMcq);
   const [selectedAnswer, setSelectedAnswer] = useState(mcq.correctAnswerId);
+  const t = useTranslation();
 
   const biasWarnings = useMemo(() => {
     const allText = [mcq.stem, ...mcq.options.map(o => o.text)].join(' ');
@@ -32,22 +34,22 @@ export const MCQReviewCard: React.FC<MCQReviewCardProps> = ({ initialMcq, onSave
 
   return (
     <div className="bg-white p-6 rounded-lg shadow-md border border-slate-200">
-      <h3 className="text-xl font-semibold text-slate-700 mb-2">Review &amp; Edit Question</h3>
-      <p className="text-slate-500 mb-4">This is a draft. Please review, edit, and approve the content. The AI-selected answer is pre-filled.</p>
+      <h3 className="text-xl font-semibold text-slate-700 mb-2">{t('reviewEdit')}</h3>
+      <p className="text-slate-500 mb-4">{t('reviewHelp')}</p>
       
       {biasWarnings.length > 0 && (
           <div className="mb-4 p-3 bg-yellow-100 border-l-4 border-yellow-400 text-yellow-800 rounded-r-lg flex items-start">
               <AlertTriangleIcon className="w-5 h-5 mr-3 mt-1 flex-shrink-0"/>
               <div>
-                  <h4 className="font-bold">Bias Detector Flag</h4>
-                  <p className="text-sm">Potential bias detected for terms: <span className="font-semibold">{biasWarnings.join(', ')}</span>. Please review the text for appropriate context.</p>
+                  <h4 className="font-bold">{t('biasFlag')}</h4>
+                  <p className="text-sm">{t('biasDetected')} <span className="font-semibold">{biasWarnings.join(', ')}</span>. </p>
               </div>
           </div>
       )}
 
       <div className="space-y-4">
         <label className="block">
-          <span className="font-semibold text-slate-600">Question Stem</span>
+          <span className="font-semibold text-slate-600">{t('questionStem')}</span>
           <textarea
             value={mcq.stem}
             onChange={(e) => setMcq({ ...mcq, stem: e.target.value })}
@@ -57,7 +59,7 @@ export const MCQReviewCard: React.FC<MCQReviewCardProps> = ({ initialMcq, onSave
         </label>
 
         <div className="space-y-2">
-            <span className="font-semibold text-slate-600">Options</span>
+            <span className="font-semibold text-slate-600">{t('options')}</span>
             {mcq.options.map((option) => (
             <div key={option.id} className="flex items-center space-x-3">
                 <input
@@ -80,7 +82,7 @@ export const MCQReviewCard: React.FC<MCQReviewCardProps> = ({ initialMcq, onSave
         </div>
         
         <div className="pt-2">
-            <h4 className="font-semibold text-slate-600">Citation</h4>
+            <h4 className="font-semibold text-slate-600">{t('citation')}</h4>
             <div className="mt-1 flex items-center space-x-2 text-sm text-slate-500 bg-slate-100 p-2 rounded-md">
                 <FileTextIcon className="w-4 h-4 text-slate-400"/>
                 <span>{mcq.citation.source}</span>
@@ -88,7 +90,7 @@ export const MCQReviewCard: React.FC<MCQReviewCardProps> = ({ initialMcq, onSave
         </div>
 
         <label className="block pt-2">
-          <span className="font-semibold text-slate-600">Answer Rationale</span>
+          <span className="font-semibold text-slate-600">{t('answerRationale')}</span>
           <textarea
             value={mcq.rationale}
             onChange={(e) => setMcq({ ...mcq, rationale: e.target.value })}
@@ -104,14 +106,14 @@ export const MCQReviewCard: React.FC<MCQReviewCardProps> = ({ initialMcq, onSave
             type="button"
             className="px-6 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-md hover:bg-slate-100 transition-colors"
           >
-            Cancel
+            {t('cancel')}
           </button>
           <button
               onClick={handleSave}
               className="flex items-center justify-center px-6 py-2 bg-blue-600 text-white font-semibold rounded-md shadow-sm hover:bg-blue-700 transition-colors"
           >
               <SaveIcon className="w-5 h-5 mr-2" />
-              Save Question
+              {t('saveQuestion')}
           </button>
       </div>
     </div>
