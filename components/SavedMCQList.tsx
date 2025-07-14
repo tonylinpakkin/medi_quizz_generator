@@ -81,6 +81,10 @@ const SavedMCQItem: React.FC<SavedMCQItemProps> = ({ mcq, onEdit, onDelete }) =>
             <span>{mcq.citation.source}</span>
         </div>
       </div>
+
+      {mcq.rationale && (
+        <p className="text-sm text-slate-600 pt-2">{mcq.rationale}</p>
+      )}
       
       <div className="mt-4 pt-4 border-t border-slate-200 flex justify-end space-x-3">
         <button onClick={() => onEdit(mcq.id)} className="flex items-center px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-md hover:bg-slate-100 transition-colors">

@@ -13,6 +13,8 @@ export interface MCQ {
   stem: string;
   options: MCQOption[];
   correctAnswerId: string;
+  /** Explanation for why the correct answer is best */
+  rationale: string;
   citation: Citation;
 }
 
