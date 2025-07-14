@@ -8,6 +8,7 @@ import { generateMCQFromText } from './services/geminiService';
 import { getAllMCQs, saveMCQ, deleteMCQ as deleteMCQFromDb } from './services/mcqStorage';
 import { MCQ, APIState } from './types';
 import { LoadingSpinner } from './components/icons';
+import { useLanguage } from './LanguageContext';
 
 const App: React.FC = () => {
   const [apiState, setApiState] = useState<APIState>(APIState.Idle);
@@ -15,6 +16,7 @@ const App: React.FC = () => {
   const [savedMcqs, setSavedMcqs] = useState<MCQ[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'generate' | 'saved'>('generate');
+  const { t } = useLanguage();
 
   useEffect(() => {
     getAllMCQs().then(setSavedMcqs).catch((err) => {
@@ -24,7 +26,7 @@ const App: React.FC = () => {
 
   const handleGenerateMCQ = useCallback(async (text: string) => {
     if (!text.trim()) {
-      setError("Please enter some text from your thesis.");
+      setError(t('pleaseEnterText'));
       return;
     }
     setApiState(APIState.Loading);
@@ -38,7 +40,7 @@ const App: React.FC = () => {
     } catch (err) {
       console.error(err);
       const errorMessage = err instanceof Error ? err.message : "An unknown error occurred.";
-      setError(`Failed to generate MCQ. ${errorMessage}`);
+      setError(`${t('failedGenerate')} ${errorMessage}`);
       setApiState(APIState.Error);
     }
   }, []);
@@ -88,13 +90,13 @@ const App: React.FC = () => {
             className={`pb-2 ${activeTab === 'generate' ? 'border-b-2 border-blue-600 text-blue-600 font-semibold' : 'text-slate-600'}`}
             onClick={() => setActiveTab('generate')}
           >
-            Generate MCQ
+            {t('generateTab')}
           </button>
           <button
             className={`pb-2 ${activeTab === 'saved' ? 'border-b-2 border-blue-600 text-blue-600 font-semibold' : 'text-slate-600'}`}
             onClick={() => setActiveTab('saved')}
           >
-            Saved MCQs
+            {t('savedTab')}
           </button>
         </nav>
 
@@ -116,14 +118,14 @@ const App: React.FC = () => {
                 {apiState === APIState.Loading && (
                   <div className="flex flex-col items-center justify-center mt-12 text-center bg-white p-8 rounded-lg shadow-md border border-slate-200">
                     <LoadingSpinner className="w-12 h-12 text-blue-600" />
-                    <p className="mt-4 text-lg font-medium text-slate-600">AI is drafting your question...</p>
-                    <p className="text-sm text-slate-500">This may take a few moments.</p>
+                    <p className="mt-4 text-lg font-medium text-slate-600">{t('generatingQuestion')}</p>
+                    <p className="text-sm text-slate-500">{t('generatingWait')}</p>
                   </div>
                 )}
 
                 {apiState === APIState.Error && (
                   <div className="mt-8 p-4 bg-red-100 border border-red-300 text-red-800 rounded-lg">
-                    <h3 className="font-bold">Error</h3>
+                    <h3 className="font-bold">{t('error')}</h3>
                     <p>{error}</p>
                   </div>
                 )}
@@ -141,7 +143,7 @@ const App: React.FC = () => {
         )}
       </main>
       <footer className="text-center py-4 text-sm text-slate-400">
-        <p>&copy; 2024 MCQ Drafter AI. For educational and research purposes only.</p>
+        <p>{t('footerText')}</p>
       </footer>
     </div>
   );
