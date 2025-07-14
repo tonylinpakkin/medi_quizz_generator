@@ -115,6 +115,7 @@ interface SavedMCQListProps {
 }
 
 export const SavedMCQList: React.FC<SavedMCQListProps> = ({ mcqs, onEdit, onDelete }) => {
+  const t = useTranslation();
   if (mcqs.length === 0) {
     return null;
   }
