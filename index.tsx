@@ -9,6 +9,7 @@ if (!rootElement) {
 }
 
 const root = ReactDOM.createRoot(rootElement);
+console.debug('Initializing application');
 root.render(
   <React.StrictMode>
     <App />
