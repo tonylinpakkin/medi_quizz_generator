@@ -34,8 +34,13 @@ export const exportMCQsToPDF = (mcqs: MCQ[]): void => {
   if (typeof window === 'undefined') return;
   const doc = new jsPDF();
   let y = 10;
+  const pageHeight = (doc as any).internal?.pageSize?.getHeight?.() ?? 0;
 
   mcqs.forEach((mcq, index) => {
+    if (y > pageHeight - 20) {
+      doc.addPage();
+      y = 10;
+    }
     doc.text(`${index + 1}. ${mcq.stem}`, 10, y); y += 10;
     mcq.options.forEach(opt => { doc.text(`${opt.id}. ${opt.text}`, 20, y); y += 10; });
     doc.text(`Answer: ${mcq.correctAnswerId}`, 10, y); y += 10;
