@@ -22,3 +22,8 @@ npm test
 ```
 
 The test suite mocks the Gemini API so it does not require a real API key or network access.
+
+## Export Saved MCQs
+
+In the **Saved MCQs** tab you can now export all questions to Word or PDF files.  
+Click **Export Word** or **Export PDF** to download the document.
