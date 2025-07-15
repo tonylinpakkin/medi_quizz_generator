@@ -34,6 +34,19 @@ import { generateMCQFromText } from '../services/geminiService';
 const sampleText = 'Primary aldosteronism is the most common cause of secondary hypertension.';
 
 describe('generateMCQFromText', () => {
+  it('throws a descriptive error when API_KEY is missing', async () => {
+    const original = process.env.API_KEY;
+    // simulate missing key
+    delete process.env.API_KEY;
+
+    await expect(generateMCQFromText(sampleText)).rejects.toThrow(
+      'API_KEY environment variable not set.'
+    );
+
+    // restore environment
+    process.env.API_KEY = original;
+  });
+
   it('returns a valid MCQ object', async () => {
     const mcq = await generateMCQFromText(sampleText);
 
