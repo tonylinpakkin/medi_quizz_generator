@@ -1,6 +1,7 @@
 import pdfMake from 'pdfmake/build/pdfmake';
 import * as pdfFonts from 'pdfmake/build/vfs_fonts';
 import type { MCQ } from '../types';
+import { arrayBufferToBase64 } from './base64';
 
 (pdfMake as any).vfs = (pdfFonts as any).pdfMake.vfs;
 
@@ -10,7 +11,7 @@ async function loadChineseFont(): Promise<void> {
   if (!('NotoSansCJKtc-Regular.otf' in pdfMake.vfs)) {
     const res = await fetch(TC_FONT_URL);
     const buffer = await res.arrayBuffer();
-    const base64String = btoa(String.fromCharCode(...new Uint8Array(buffer)));
+    const base64String = arrayBufferToBase64(buffer);
     pdfMake.vfs['NotoSansCJKtc-Regular.otf'] = base64String;
     pdfMake.fonts = {
       ...pdfMake.fonts,
