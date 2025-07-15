@@ -3,6 +3,7 @@ import React, { useMemo } from 'react';
 import type { MCQ } from '../types';
 import { detectBias } from '../services/biasDetector';
 import { EditIcon, TrashIcon, FileTextIcon, CheckCircleIcon, AlertTriangleIcon } from './icons';
+import { exportMCQsToWord, exportMCQsToPDF } from '../services/exportService';
 import { useLanguage } from '../LanguageContext';
 
 // A re-usable component to highlight potentially biased text
@@ -117,7 +118,23 @@ export const SavedMCQList: React.FC<SavedMCQListProps> = ({ mcqs, onEdit, onDele
 
   return (
     <div className="mt-12">
-      <h2 className="text-2xl font-bold text-slate-700 mb-4">{t('savedQuestions')}</h2>
+      <div className="flex justify-between items-center mb-4">
+        <h2 className="text-2xl font-bold text-slate-700">{t('savedQuestions')}</h2>
+        <div className="space-x-3">
+          <button
+            onClick={() => exportMCQsToWord(mcqs)}
+            className="px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-md hover:bg-slate-100"
+          >
+            {t('exportWord')}
+          </button>
+          <button
+            onClick={() => exportMCQsToPDF(mcqs)}
+            className="px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-md hover:bg-slate-100"
+          >
+            {t('exportPDF')}
+          </button>
+        </div>
+      </div>
       <ul className="space-y-6">
         {mcqs.map(mcq => (
           <SavedMCQItem key={mcq.id} mcq={mcq} onEdit={onEdit} onDelete={onDelete} />
