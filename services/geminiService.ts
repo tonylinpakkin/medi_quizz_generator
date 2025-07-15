@@ -2,11 +2,7 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import { MCQ } from '../types';
 
-if (!process.env.API_KEY) {
-    throw new Error("API_KEY environment variable not set.");
-}
-
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+let ai: GoogleGenAI | null = null;
 
 const mcqSchema = {
     type: Type.OBJECT,
@@ -49,6 +45,14 @@ const mcqSchema = {
 
 
 export const generateMCQFromText = async (text: string): Promise<MCQ> => {
+    const apiKey = process.env.API_KEY;
+    if (!apiKey) {
+        throw new Error("API_KEY environment variable not set.");
+    }
+    if (!ai) {
+        ai = new GoogleGenAI({ apiKey });
+    }
+
     const prompt = `
         You are an expert medical question author for practicing physicians.
         Based on the following text from a medical thesis, generate one single-best-answer multiple-choice question (MCQ).
