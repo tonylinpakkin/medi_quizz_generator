@@ -2,8 +2,9 @@
 import React, { useState, useMemo } from 'react';
 import type { MCQ } from '../types';
 import { detectBias } from '../services/biasDetector';
-import { AlertTriangleIcon, SaveIcon, FileTextIcon } from './icons';
+import { AlertTriangleIcon, SaveIcon, FileTextIcon, DownloadIcon } from './icons';
 import { useLanguage } from '../LanguageContext';
+import { exportMcqToPdf } from '../services/pdfExport';
 
 interface MCQReviewCardProps {
   initialMcq: MCQ;
@@ -14,7 +15,7 @@ interface MCQReviewCardProps {
 export const MCQReviewCard: React.FC<MCQReviewCardProps> = ({ initialMcq, onSave, onCancel }) => {
   const [mcq, setMcq] = useState<MCQ>(initialMcq);
   const [selectedAnswer, setSelectedAnswer] = useState(mcq.correctAnswerId);
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
 
   const biasWarnings = useMemo(() => {
     const allText = [mcq.stem, ...mcq.options.map(o => o.text)].join(' ');
@@ -107,6 +108,13 @@ export const MCQReviewCard: React.FC<MCQReviewCardProps> = ({ initialMcq, onSave
             className="px-6 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-md hover:bg-slate-100 transition-colors"
           >
             {t('cancel')}
+          </button>
+          <button
+            onClick={() => exportMcqToPdf({ ...mcq, correctAnswerId: selectedAnswer }, language)}
+            className="flex items-center px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-md hover:bg-slate-100 transition-colors"
+          >
+            <DownloadIcon className="w-5 h-5 mr-2" />
+            {t('downloadPdf')}
           </button>
           <button
               onClick={handleSave}

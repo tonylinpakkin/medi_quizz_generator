@@ -2,8 +2,9 @@
 import React, { useMemo } from 'react';
 import type { MCQ } from '../types';
 import { detectBias } from '../services/biasDetector';
-import { EditIcon, TrashIcon, FileTextIcon, CheckCircleIcon, AlertTriangleIcon } from './icons';
+import { EditIcon, TrashIcon, FileTextIcon, CheckCircleIcon, AlertTriangleIcon, DownloadIcon } from './icons';
 import { useLanguage } from '../LanguageContext';
+import { exportMcqToPdf } from '../services/pdfExport';
 
 // A re-usable component to highlight potentially biased text
 const BiasHighlightedText: React.FC<{text: string; flaggedWords: Set<string>}> = ({ text, flaggedWords }) => {
@@ -43,7 +44,7 @@ interface SavedMCQItemProps {
 }
 
 const SavedMCQItem: React.FC<SavedMCQItemProps> = ({ mcq, onEdit, onDelete }) => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const biasWarnings = useMemo(() => {
     const allText = [mcq.stem, ...mcq.options.map(o => o.text)].join(' ');
     return detectBias(allText);
@@ -90,6 +91,10 @@ const SavedMCQItem: React.FC<SavedMCQItemProps> = ({ mcq, onEdit, onDelete }) =>
       )}
       
       <div className="mt-4 pt-4 border-t border-slate-200 flex justify-end space-x-3">
+        <button onClick={() => exportMcqToPdf(mcq, language)} className="flex items-center px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-md hover:bg-slate-100 transition-colors">
+          <DownloadIcon className="w-4 h-4 mr-2" />
+          {t('downloadPdf')}
+        </button>
         <button onClick={() => onEdit(mcq.id)} className="flex items-center px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-md hover:bg-slate-100 transition-colors">
           <EditIcon className="w-4 h-4 mr-2" />
           {t('edit')}
