@@ -35,17 +35,29 @@ export const exportMCQsToPDF = (mcqs: MCQ[]): void => {
   const doc = new jsPDF();
   let y = 10;
   const pageHeight = (doc as any).internal?.pageSize?.getHeight?.() ?? 0;
+  const pageWidth = (doc as any).internal?.pageSize?.getWidth?.() ?? 0;
+  const margin = 10;
+
+  const addWrappedText = (text: string, x: number) => {
+    const maxWidth = pageWidth - margin - x;
+    const lines = doc.splitTextToSize(text, maxWidth);
+    lines.forEach(line => {
+      if (y > pageHeight - margin) {
+        doc.addPage();
+        y = margin;
+      }
+      doc.text(line, x, y);
+      y += 10;
+    });
+  };
 
   mcqs.forEach((mcq, index) => {
-    if (y > pageHeight - 20) {
-      doc.addPage();
-      y = 10;
-    }
-    doc.text(`${index + 1}. ${mcq.stem}`, 10, y); y += 10;
-    mcq.options.forEach(opt => { doc.text(`${opt.id}. ${opt.text}`, 20, y); y += 10; });
-    doc.text(`Answer: ${mcq.correctAnswerId}`, 10, y); y += 10;
-    if (mcq.rationale) { doc.text(`Rationale: ${mcq.rationale}`, 10, y); y += 10; }
-    doc.text(`Source: ${mcq.citation.source}`, 10, y); y += 20;
+    addWrappedText(`${index + 1}. ${mcq.stem}`, margin);
+    mcq.options.forEach(opt => { addWrappedText(`${opt.id}. ${opt.text}`, margin + 10); });
+    addWrappedText(`Answer: ${mcq.correctAnswerId}`, margin);
+    if (mcq.rationale) { addWrappedText(`Rationale: ${mcq.rationale}`, margin); }
+    addWrappedText(`Source: ${mcq.citation.source}`, margin);
+    y += 10;
   });
 
   doc.save('mcqs.pdf');
