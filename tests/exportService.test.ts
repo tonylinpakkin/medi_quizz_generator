@@ -15,9 +15,15 @@ vi.mock('jspdf', () => {
     jsPDF: vi.fn().mockImplementation(() => {
       lastInstance = {
         text: vi.fn(),
+        splitTextToSize: vi.fn().mockImplementation((text: string) => [text]),
         save: vi.fn(),
         addPage: vi.fn(),
-        internal: { pageSize: { getHeight: vi.fn().mockReturnValue(40) } },
+        internal: {
+          pageSize: {
+            getHeight: vi.fn().mockReturnValue(40),
+            getWidth: vi.fn().mockReturnValue(80),
+          },
+        },
       };
       return lastInstance;
     }),
@@ -63,5 +69,13 @@ describe('exportService', () => {
     exportMCQsToPDF(longMcqs);
     delete (globalThis as any).window;
     expect(lastInstance.addPage).toHaveBeenCalled();
+  });
+
+  it('wraps text when width is exceeded', () => {
+    const longMcq = { ...mcqs[0], stem: 'This is a very long stem that should exceed the page width and trigger wrapping in the PDF export function.' };
+    (globalThis as any).window = {};
+    exportMCQsToPDF([longMcq]);
+    delete (globalThis as any).window;
+    expect(lastInstance.splitTextToSize).toHaveBeenCalled();
   });
 });
