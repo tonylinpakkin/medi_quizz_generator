@@ -3,8 +3,9 @@ export const MEDICAL_KEYWORDS: string[] = [
   'clinical', 'patient', 'hospital', 'doctor', 'nurse', 'drug', 'pharmacology',
   'surgery', 'anatomy', 'physiology', 'pathology', 'symptom', 'health',
   'immunology', 'oncology', 'cardiology', 'neurology', 'radiology',
-  'epidemiology', 'vaccination', 'hypertension', 'cardiovascular',
+  'epidemiology', 'vaccination', 'vaccinations', 'hypertension', 'cardiovascular',
   'endocrine', 'renal', 'pulmonary', 'gastrointestinal',
   // Additional keywords and phrases
-  'myocardial', 'heart attack', 'renal failure', 'stroke', 'liver disease'
+  'myocardial', 'heart attack', 'renal failure', 'stroke', 'liver disease',
+  'diseases'
 ];

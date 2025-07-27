@@ -3,12 +3,6 @@ import { GoogleGenAI, Type } from "@google/genai";
 import { MCQ } from '../types';
 import { isMedicalContent } from './medicalContentDetector';
 
-if (!process.env.GEMINI_API_KEY) {
-    throw new Error("GEMINI_API_KEY environment variable not set.");
-}
-
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
-
 const mcqSchema = {
     type: Type.OBJECT,
     properties: {
@@ -50,6 +44,10 @@ const mcqSchema = {
 
 
 export const generateMCQFromText = async (text: string): Promise<MCQ> => {
+    if (!process.env.GEMINI_API_KEY) {
+        return Promise.reject(new Error("GEMINI_API_KEY environment variable not set."));
+    }
+
     if (!isMedicalContent(text)) {
         throw new Error("The input text does not appear to be medical or clinical in nature.");
     }
@@ -77,6 +75,8 @@ export const generateMCQFromText = async (text: string): Promise<MCQ> => {
         ---
 
     `;
+
+    const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
     try {
         const response = await ai.models.generateContent({
