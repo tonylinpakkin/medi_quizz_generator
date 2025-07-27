@@ -1,6 +1,7 @@
 
 import { GoogleGenAI, Type } from "@google/genai";
 import { MCQ } from '../types';
+import { isMedicalContent } from './medicalContentDetector';
 
 if (!process.env.API_KEY) {
     throw new Error("API_KEY environment variable not set.");
@@ -49,6 +50,10 @@ const mcqSchema = {
 
 
 export const generateMCQFromText = async (text: string): Promise<MCQ> => {
+    if (!isMedicalContent(text)) {
+        throw new Error("The input text does not appear to be medical or clinical in nature.");
+    }
+
     const prompt = `
         You are an expert medical question author for practicing physicians.
 
