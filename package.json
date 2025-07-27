@@ -7,7 +7,7 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "test": "API_KEY=test vitest run"
+    "test": "API_KEY=test GEMINI_API_KEY=test vitest run"
   },
   "engines": {
     "node": ">=18"
@@ -18,7 +18,8 @@
     "idb": "^7.1.1",
     "jspdf": "^3.0.1",
     "react": "^19.1.0",
-    "react-dom": "^19.1.0"
+    "react-dom": "^19.1.0",
+    "natural": "^8.1.0"
   },
   "devDependencies": {
     "@types/node": "^22.14.0",

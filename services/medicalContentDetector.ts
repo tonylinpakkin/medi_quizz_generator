@@ -1,4 +1,6 @@
 import { MEDICAL_KEYWORDS } from '../medicalKeywords';
+import { WordTokenizer, PorterStemmer } from 'natural';
+
 
 // Separate keywords into single words and multi-word phrases
 const singleWordKeywords = new Set<string>();
@@ -13,6 +15,7 @@ for (const kw of MEDICAL_KEYWORDS) {
   }
 }
 
+
 export const isMedicalContent = (text: string): boolean => {
   if (!text) return false;
 
@@ -22,6 +25,7 @@ export const isMedicalContent = (text: string): boolean => {
   // Check single-word matches
   for (const token of tokens) {
     if (singleWordKeywords.has(token)) {
+
       return true;
     }
   }
