@@ -12,6 +12,18 @@
 </head>
   <body class="bg-slate-50">
     <div id="root"></div>
-    <script type="module" src="/index.tsx"></script>
+    <script type="module">
+      import('/index.tsx').catch((err) => {
+        const root = document.getElementById('root');
+        if (root) {
+          root.innerHTML = `
+            <div class="p-4 text-red-600">
+              This page needs to be served with Vite. Run <code>npm run dev</code>
+              or build the project and open the built index.html.
+            </div>`;
+        }
+        console.error('Failed to load module', err);
+      });
+    </script>
   </body>
 </html>
