@@ -51,16 +51,26 @@ const mcqSchema = {
 export const generateMCQFromText = async (text: string): Promise<MCQ> => {
     const prompt = `
         You are an expert medical question author for practicing physicians.
-        Based on the following text from a medical thesis, generate one single-best-answer multiple-choice question (MCQ).
-        The question must be challenging, clinically relevant, and test a key concept from the provided text.
-        Include a brief explanation for why the chosen answer is correct in a 'rationale' field.
-        Your response MUST be a valid JSON object that strictly adheres to the provided schema.
-        Do not include any markdown formatting, backticks, or the word 'json' in your response. Just the raw JSON object.
 
+        Step 1: Determine if the following input text is clearly related to **medical or clinical topics** (e.g., human health, diseases, treatments, anatomy, physiology, diagnostics, healthcare systems).
+        
+        - If the input **is NOT related** to medical or clinical content, do NOT generate any question. Instead, return this exact message:
+          {
+            "error": "The input text does not appear to be medical or clinical in nature. Please paste content related to medicine or healthcare for MCQ generation."
+          }
+        
+        - If the input **is clearly medical**, proceed to Step 2.
+        
+        Step 2: Based on the medical input, generate one challenging, clinically relevant, single-best-answer multiple-choice question (MCQ) that tests a key concept from the text. Include a brief explanation for the correct answer in the 'rationale' field.
+        
+        Your response MUST be a valid JSON object that strictly adheres to the provided schema.  
+        Do not include any markdown formatting, backticks, or the word 'json'. Just return the raw JSON object.
+        
         Thesis Text:
         ---
         ${text}
         ---
+
     `;
 
     try {
