@@ -7,6 +7,9 @@ describe('isMedicalContent', () => {
     'Vaccinations prevent many diseases.',
     'Renal failure may require dialysis therapy.',
     'Clinical trials evaluate new cancer treatments.',
+    'He was vaccinated recently.',
+    'She was diagnosed yesterday.',
+    'Multiple renal failures were reported.',
   ];
 
   positiveCases.forEach(text => {
