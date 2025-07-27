@@ -54,6 +54,13 @@ describe('generateMCQFromText', () => {
     expect(mcq.id).toBeDefined();
   });
 
+  it('accepts medical text with new keywords', async () => {
+    const text = 'Myocardial infarction can present with chest pain.';
+    const mcq = await generateMCQFromText(text);
+    expect(mockGenerateContent).toHaveBeenCalled();
+    expect(mcq).toBeDefined();
+  });
+
   it('rejects non-medical text', async () => {
     const nonMedicalText = 'The quick brown fox jumps over the lazy dog.';
     await expect(generateMCQFromText(nonMedicalText)).rejects.toThrow(

@@ -4,5 +4,7 @@ export const MEDICAL_KEYWORDS: string[] = [
   'surgery', 'anatomy', 'physiology', 'pathology', 'symptom', 'health',
   'immunology', 'oncology', 'cardiology', 'neurology', 'radiology',
   'epidemiology', 'vaccination', 'hypertension', 'cardiovascular',
-  'endocrine', 'renal', 'pulmonary', 'gastrointestinal'
+  'endocrine', 'renal', 'pulmonary', 'gastrointestinal',
+  // Additional keywords and phrases
+  'myocardial', 'heart attack', 'renal failure', 'stroke', 'liver disease'
 ];
