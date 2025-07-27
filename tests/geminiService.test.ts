@@ -68,4 +68,14 @@ describe('generateMCQFromText', () => {
     );
     expect(mockGenerateContent).not.toHaveBeenCalled();
   });
+
+  it('rejects when the API key is missing', async () => {
+    const prev = process.env.GEMINI_API_KEY;
+    delete process.env.GEMINI_API_KEY;
+    await expect(generateMCQFromText(sampleText)).rejects.toThrow(
+      'GEMINI_API_KEY environment variable not set.'
+    );
+    expect(mockGenerateContent).not.toHaveBeenCalled();
+    process.env.GEMINI_API_KEY = prev;
+  });
 });
