@@ -5,6 +5,7 @@ import { ThesisInput } from './components/ThesisInput';
 import { MCQReviewCard } from './components/MCQReviewCard';
 import { SavedMCQList } from './components/SavedMCQList';
 import { generateMCQFromText } from './services/geminiService';
+import { isMedicalContent } from './services/medicalClassifier';
 import { getAllMCQs, saveMCQ, deleteMCQ as deleteMCQFromDb } from './services/mcqStorage';
 import { MCQ, APIState } from './types';
 import { LoadingSpinner } from './components/icons';
@@ -34,6 +35,13 @@ const App: React.FC = () => {
     setCurrentMcq(null);
 
     try {
+      const medical = await isMedicalContent(text);
+      if (!medical) {
+        setError(t('nonMedicalError'));
+        setApiState(APIState.Error);
+        return;
+      }
+
       const generatedMcq = await generateMCQFromText(text);
       setCurrentMcq(generatedMcq);
       setApiState(APIState.Success);
