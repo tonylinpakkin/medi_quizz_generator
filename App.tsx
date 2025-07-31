@@ -4,6 +4,7 @@ import { Header } from './components/Header';
 import { ThesisInput } from './components/ThesisInput';
 import { MCQReviewCard } from './components/MCQReviewCard';
 import { SavedMCQList } from './components/SavedMCQList';
+import { ProgressIndicator } from './components/ProgressIndicator';
 import { generateMCQFromText } from './services/geminiService';
 import { isMedicalContent } from './services/medicalClassifier';
 import { getAllMCQs, saveMCQ, deleteMCQ as deleteMCQFromDb } from './services/mcqStorage';
@@ -20,6 +21,8 @@ const App: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'generate' | 'saved'>('generate');
   const [success, setSuccess] = useState<string | null>(null);
   const { t } = useLanguage();
+
+  const currentStep = currentMcq ? 2 : activeTab === 'saved' ? 3 : 1;
 
   useEffect(() => {
     getAllMCQs().then(setSavedMcqs).catch((err) => {
@@ -117,6 +120,7 @@ const App: React.FC = () => {
           {t('savedTab')}
           </button>
         </nav>
+        <ProgressIndicator step={currentStep} />
 
         {success && (
           <div className="mb-6 p-4 bg-green-100 border border-green-300 text-green-800 rounded-lg flex items-center justify-between">
