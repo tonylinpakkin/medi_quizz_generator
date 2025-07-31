@@ -1,8 +1,8 @@
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import type { MCQ } from '../types';
 import { detectBias } from '../services/biasDetector';
-import { AlertTriangleIcon, SaveIcon, FileTextIcon } from './icons';
+import { AlertTriangleIcon, SaveIcon, FileTextIcon, EditIcon } from './icons';
 import { useLanguage } from '../LanguageContext';
 
 interface MCQReviewCardProps {
@@ -14,12 +14,18 @@ interface MCQReviewCardProps {
 export const MCQReviewCard: React.FC<MCQReviewCardProps> = ({ initialMcq, onSave, onCancel }) => {
   const [mcq, setMcq] = useState<MCQ>(initialMcq);
   const [selectedAnswer, setSelectedAnswer] = useState(mcq.correctAnswerId);
+  const [highlightSave, setHighlightSave] = useState(true);
   const { t } = useLanguage();
 
   const biasWarnings = useMemo(() => {
     const allText = [mcq.stem, ...mcq.options.map(o => o.text)].join(' ');
     return detectBias(allText);
   }, [mcq]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setHighlightSave(false), 3000);
+    return () => clearTimeout(timer);
+  }, []);
 
   const handleOptionChange = (optionId: string, newText: string) => {
     const newOptions = mcq.options.map(opt =>
@@ -34,8 +40,25 @@ export const MCQReviewCard: React.FC<MCQReviewCardProps> = ({ initialMcq, onSave
 
   return (
     <div className="bg-white p-6 rounded-lg shadow-md border border-slate-200">
-      <h3 className="text-xl font-semibold text-slate-700 mb-2">{t('reviewEdit')}</h3>
-      <p className="text-slate-500 mb-4">{t('reviewDraft')}</p>
+      <div className="mb-2">
+        <button
+          onClick={onCancel}
+          type="button"
+          className="px-4 py-2 text-base font-medium text-blue-700 bg-blue-50 rounded hover:bg-blue-100"
+        >
+          {t('backToInput')}
+        </button>
+      </div>
+      <br />
+      <h3 className="text-xl font-semibold text-slate-700 flex items-center">
+        {t('reviewEdit')}
+        <span className="ml-3 inline-flex items-center px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 text-xs font-medium">
+          <EditIcon className="w-3 h-3 mr-1" />
+          {t('editMode')}
+        </span>
+      </h3>
+      <p className="text-slate-500 mb-2">{t('reviewDraft')}</p>
+      <p className="text-slate-500 mb-4">{t('reviewInstruction')}</p>
       
       {biasWarnings.length > 0 && (
           <div className="mb-4 p-3 bg-yellow-100 border-l-4 border-yellow-400 text-yellow-800 rounded-r-lg flex items-start">
@@ -50,12 +73,15 @@ export const MCQReviewCard: React.FC<MCQReviewCardProps> = ({ initialMcq, onSave
       <div className="space-y-4">
         <label className="block">
           <span className="font-semibold text-slate-600">{t('questionStem')}</span>
-          <textarea
-            value={mcq.stem}
-            onChange={(e) => setMcq({ ...mcq, stem: e.target.value })}
-            rows={3}
-            className="mt-1 w-full p-2 bg-white border border-slate-400 text-slate-900 rounded-md focus:ring-2 focus:ring-blue-500"
-          />
+          <div className="relative group">
+            <textarea
+              value={mcq.stem}
+              onChange={(e) => setMcq({ ...mcq, stem: e.target.value })}
+              rows={3}
+              className="mt-1 w-full p-2 bg-yellow-50 border-2 border-blue-400 text-slate-900 rounded-md focus:ring-2 focus:ring-blue-500 hover:cursor-pointer"
+            />
+            <EditIcon className="w-4 h-4 absolute top-2 right-2 text-slate-400 opacity-0 group-hover:opacity-100 pointer-events-none" />
+          </div>
         </label>
 
         <div className="space-y-2">
@@ -71,12 +97,15 @@ export const MCQReviewCard: React.FC<MCQReviewCardProps> = ({ initialMcq, onSave
                     onChange={(e) => setSelectedAnswer(e.target.value)}
                     className="h-5 w-5 text-blue-600 focus:ring-blue-500 border-slate-300"
                 />
-                <input
-                    type="text"
-                    value={option.text}
-                    onChange={(e) => handleOptionChange(option.id, e.target.value)}
-                    className="w-full p-2 bg-white border border-slate-400 text-slate-900 rounded-md focus:ring-2 focus:ring-blue-500"
-                />
+                <div className="relative group w-full">
+                    <input
+                        type="text"
+                        value={option.text}
+                        onChange={(e) => handleOptionChange(option.id, e.target.value)}
+                        className="w-full p-2 bg-yellow-50 border-2 border-blue-400 text-slate-900 rounded-md focus:ring-2 focus:ring-blue-500 hover:cursor-pointer"
+                    />
+                    <EditIcon className="w-4 h-4 absolute top-2 right-2 text-slate-400 opacity-0 group-hover:opacity-100 pointer-events-none" />
+                </div>
             </div>
             ))}
         </div>
@@ -91,12 +120,15 @@ export const MCQReviewCard: React.FC<MCQReviewCardProps> = ({ initialMcq, onSave
 
         <label className="block pt-2">
           <span className="font-semibold text-slate-600">{t('answerRationale')}</span>
-          <textarea
-            value={mcq.rationale}
-            onChange={(e) => setMcq({ ...mcq, rationale: e.target.value })}
-            rows={3}
-            className="mt-1 w-full p-2 bg-white border border-slate-400 text-slate-900 rounded-md focus:ring-2 focus:ring-blue-500"
-          />
+          <div className="relative group">
+            <textarea
+              value={mcq.rationale}
+              onChange={(e) => setMcq({ ...mcq, rationale: e.target.value })}
+              rows={3}
+              className="mt-1 w-full p-2 bg-yellow-50 border-2 border-blue-400 text-slate-900 rounded-md focus:ring-2 focus:ring-blue-500 hover:cursor-pointer"
+            />
+            <EditIcon className="w-4 h-4 absolute top-2 right-2 text-slate-400 opacity-0 group-hover:opacity-100 pointer-events-none" />
+          </div>
         </label>
       </div>
       
@@ -110,7 +142,7 @@ export const MCQReviewCard: React.FC<MCQReviewCardProps> = ({ initialMcq, onSave
           </button>
           <button
               onClick={handleSave}
-              className="flex items-center justify-center px-6 py-2 bg-blue-600 text-white font-semibold rounded-md shadow-sm hover:bg-blue-700 transition-colors"
+              className={`flex items-center justify-center px-6 py-2 bg-blue-600 text-white font-semibold rounded-md shadow-sm hover:bg-blue-700 transition-colors ${highlightSave ? 'animate-pulse' : ''}`}
           >
               <SaveIcon className="w-5 h-5 mr-2" />
               {t('saveQuestion')}

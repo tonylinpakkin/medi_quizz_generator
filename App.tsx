@@ -4,26 +4,38 @@ import { Header } from './components/Header';
 import { ThesisInput } from './components/ThesisInput';
 import { MCQReviewCard } from './components/MCQReviewCard';
 import { SavedMCQList } from './components/SavedMCQList';
+import { ProgressIndicator } from './components/ProgressIndicator';
 import { generateMCQFromText } from './services/geminiService';
 import { isMedicalContent } from './services/medicalClassifier';
 import { getAllMCQs, saveMCQ, deleteMCQ as deleteMCQFromDb } from './services/mcqStorage';
 import { MCQ, APIState } from './types';
-import { LoadingSpinner } from './components/icons';
+import LoadingOverlay from './components/LoadingOverlay';
 import { useLanguage } from './LanguageContext';
 
 const App: React.FC = () => {
   const [apiState, setApiState] = useState<APIState>(APIState.Idle);
   const [currentMcq, setCurrentMcq] = useState<MCQ | null>(null);
+  const [inputText, setInputText] = useState('');
   const [savedMcqs, setSavedMcqs] = useState<MCQ[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'generate' | 'saved'>('generate');
+  const [success, setSuccess] = useState<string | null>(null);
   const { t } = useLanguage();
+
+  const currentStep = currentMcq ? 2 : activeTab === 'saved' ? 3 : 1;
 
   useEffect(() => {
     getAllMCQs().then(setSavedMcqs).catch((err) => {
       console.error('Failed to load MCQs from IndexedDB', err);
     });
   }, []);
+
+  useEffect(() => {
+    if (success) {
+      const timer = setTimeout(() => setSuccess(null), 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [success]);
 
   const handleGenerateMCQ = useCallback(async (text: string) => {
     if (!text.trim()) {
@@ -67,6 +79,7 @@ const App: React.FC = () => {
     });
     setCurrentMcq(null);
     setApiState(APIState.Idle);
+    setSuccess(t('saveSuccess'));
   };
   
   const handleCancelReview = () => {
@@ -93,20 +106,41 @@ const App: React.FC = () => {
     <div className="min-h-screen bg-slate-50 font-sans text-slate-800">
       <Header />
       <main className="container mx-auto px-4 py-8 max-w-4xl">
-        <nav className="mb-6 border-b border-slate-200 flex space-x-6">
+        <nav className="mb-6 border-b border-slate-200 flex space-x-2">
           <button
-            className={`pb-2 ${activeTab === 'generate' ? 'border-b-2 border-blue-600 text-blue-600 font-semibold' : 'text-slate-600'}`}
+            className={`px-4 py-2 rounded-t shadow-sm ${
+              activeTab === 'generate'
+                ? 'bg-white text-blue-600 font-semibold'
+                : 'text-slate-600'
+            }`}
             onClick={() => setActiveTab('generate')}
           >
             {t('generateTab')}
           </button>
           <button
-            className={`pb-2 ${activeTab === 'saved' ? 'border-b-2 border-blue-600 text-blue-600 font-semibold' : 'text-slate-600'}`}
+            className={`px-4 py-2 rounded-t shadow-sm ${
+              activeTab === 'saved'
+                ? 'bg-white text-blue-600 font-semibold'
+                : 'text-slate-600'
+            }`}
             onClick={() => setActiveTab('saved')}
           >
-            {t('savedTab')}
+          {t('savedTab')}
           </button>
         </nav>
+        <ProgressIndicator step={currentStep} />
+
+        {success && (
+          <div className="mb-6 p-4 bg-green-100 border border-green-300 text-green-800 rounded-lg flex items-center justify-between">
+            <span>{success}</span>
+            <button
+              onClick={() => setActiveTab('saved')}
+              className="ml-4 px-3 py-1 text-sm font-semibold text-green-800 bg-green-200 rounded hover:bg-green-300 transition-colors"
+            >
+              {t('viewSaved')}
+            </button>
+          </div>
+        )}
 
         {currentMcq ? (
           <div className="animate-fade-in">
@@ -121,14 +155,15 @@ const App: React.FC = () => {
           <>
             {activeTab === 'generate' && (
               <>
-                <ThesisInput onGenerate={handleGenerateMCQ} isLoading={apiState === APIState.Loading} />
+                <ThesisInput
+                  text={inputText}
+                  onTextChange={setInputText}
+                  onGenerate={handleGenerateMCQ}
+                  isLoading={apiState === APIState.Loading}
+                />
 
                 {apiState === APIState.Loading && (
-                  <div className="flex flex-col items-center justify-center mt-12 text-center bg-white p-8 rounded-lg shadow-md border border-slate-200">
-                    <LoadingSpinner className="w-12 h-12 text-blue-600" />
-                    <p className="mt-4 text-lg font-medium text-slate-600">{t('generatingQuestion')}</p>
-                    <p className="text-sm text-slate-500">{t('generatingWait')}</p>
-                  </div>
+                  <LoadingOverlay />
                 )}
 
                 {apiState === APIState.Error && (
