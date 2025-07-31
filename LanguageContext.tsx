@@ -40,9 +40,9 @@ const translations: Record<Language, Record<string, string>> = {
     saveSuccess: 'MCQ saved.',
     viewSaved: 'View Saved MCQs',
     backToInput: 'Back to Input',
-    progressStep1: 'Step 1',
-    progressStep2: 'Step 2',
-    progressStep3: 'Step 3',
+    progressStep1: 'Step 1: Input Text',
+    progressStep2: 'Step 2: Review Question',
+    progressStep3: 'Step 3: Saved MCQs',
   },
   'zh-Hant': {
     pasteParagraph: '1. \u8CBC\u4E0A\u6587\u5B57\u6216\u4E0A\u50B3\u6A94\u6848',
@@ -81,9 +81,9 @@ const translations: Record<Language, Record<string, string>> = {
     saveSuccess: '\u984C\u76EE\u5DF2\u5132\u5B58\u3002',
     viewSaved: '\u6AA2\u8996\u5DF2\u5132\u5B58\u984C\u76EE',
     backToInput: '\u8FD4\u56DE\u8F38\u5165\u9801\u9762',
-    progressStep1: '\u6B65\u9A5F 1',
-    progressStep2: '\u6B65\u9A5F 2',
-    progressStep3: '\u6B65\u9A5F 3',
+    progressStep1: '\u6B65\u9A5F 1\uFF1A\u8F38\u5165\u5167\u5BB9',
+    progressStep2: '\u6B65\u9A5F 2\uFF1A\u5BE9\u95B1\u4E26\u7DE8\u8F2F',
+    progressStep3: '\u6B65\u9A5F 3\uFF1A\u67E5\u770B\u5DF2\u5132\u5B58',
   },
 };
 
