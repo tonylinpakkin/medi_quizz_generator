@@ -8,7 +8,7 @@ import { generateMCQFromText } from './services/geminiService';
 import { isMedicalContent } from './services/medicalClassifier';
 import { getAllMCQs, saveMCQ, deleteMCQ as deleteMCQFromDb } from './services/mcqStorage';
 import { MCQ, APIState } from './types';
-import { LoadingSpinner } from './components/icons';
+import LoadingOverlay from './components/LoadingOverlay';
 import { useLanguage } from './LanguageContext';
 
 const App: React.FC = () => {
@@ -151,11 +151,7 @@ const App: React.FC = () => {
                 />
 
                 {apiState === APIState.Loading && (
-                  <div className="flex flex-col items-center justify-center mt-12 text-center bg-white p-8 rounded-lg shadow-md border border-slate-200">
-                    <LoadingSpinner className="w-12 h-12 text-blue-600" />
-                    <p className="mt-4 text-lg font-medium text-slate-600">{t('generatingQuestion')}</p>
-                    <p className="text-sm text-slate-500">{t('generatingWait')}</p>
-                  </div>
+                  <LoadingOverlay />
                 )}
 
                 {apiState === APIState.Error && (
