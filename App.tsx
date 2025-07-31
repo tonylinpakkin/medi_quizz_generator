@@ -106,15 +106,23 @@ const App: React.FC = () => {
     <div className="min-h-screen bg-slate-50 font-sans text-slate-800">
       <Header />
       <main className="container mx-auto px-4 py-8 max-w-4xl">
-        <nav className="mb-6 border-b border-slate-200 flex space-x-6 bg-white shadow-sm rounded">
+        <nav className="mb-6 border-b border-slate-200 flex space-x-2 bg-white shadow-sm rounded">
           <button
-            className={`pb-2 ${activeTab === 'generate' ? 'border-b-2 border-blue-600 text-blue-600 font-semibold' : 'text-slate-600'}`}
+            className={`px-4 py-2 rounded-t border ${
+              activeTab === 'generate'
+                ? 'bg-white text-blue-600 font-semibold border-blue-600 border-b-0'
+                : 'text-slate-600 border-slate-300'
+            }`}
             onClick={() => setActiveTab('generate')}
           >
             {t('generateTab')}
           </button>
           <button
-            className={`pb-2 ${activeTab === 'saved' ? 'border-b-2 border-blue-600 text-blue-600 font-semibold' : 'text-slate-600'}`}
+            className={`px-4 py-2 rounded-t border ${
+              activeTab === 'saved'
+                ? 'bg-white text-blue-600 font-semibold border-blue-600 border-b-0'
+                : 'text-slate-600 border-slate-300'
+            }`}
             onClick={() => setActiveTab('saved')}
           >
           {t('savedTab')}
