@@ -2,7 +2,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import type { MCQ } from '../types';
 import { detectBias } from '../services/biasDetector';
-import { AlertTriangleIcon, SaveIcon, FileTextIcon } from './icons';
+import { AlertTriangleIcon, SaveIcon, FileTextIcon, EditIcon } from './icons';
 import { useLanguage } from '../LanguageContext';
 
 interface MCQReviewCardProps {
@@ -50,7 +50,13 @@ export const MCQReviewCard: React.FC<MCQReviewCardProps> = ({ initialMcq, onSave
         </button>
       </div>
       <br />
-      <h3 className="text-xl font-semibold text-slate-700">{t('reviewEdit')}</h3>
+      <h3 className="text-xl font-semibold text-slate-700 flex items-center">
+        {t('reviewEdit')}
+        <span className="ml-3 inline-flex items-center px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 text-xs font-medium">
+          <EditIcon className="w-3 h-3 mr-1" />
+          {t('editMode')}
+        </span>
+      </h3>
       <p className="text-slate-500 mb-2">{t('reviewDraft')}</p>
       <p className="text-slate-500 mb-4">{t('reviewInstruction')}</p>
       
