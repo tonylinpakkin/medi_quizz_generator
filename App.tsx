@@ -121,6 +121,7 @@ const App: React.FC = () => {
           {t('savedTab')}
           </button>
         </nav>
+        <ProgressIndicator step={currentStep} />
 
         {success && (
           <div className="mb-6 p-4 bg-green-100 border border-green-300 text-green-800 rounded-lg flex items-center justify-between">
