@@ -18,6 +18,8 @@ This contains everything you need to run your app locally.
 
 The generator verifies that your input relates to medicine. If the text is not medical, an error is displayed and no question is produced.
 
+You can now paste text **or upload PDF, Word and text files** in the Generate MCQ tab. Uploaded documents are parsed in the browser and their content is placed in the text area for review before generating questions.
+
 ## Run Tests
 
 Execute unit tests with [Vitest](https://vitest.dev/):
