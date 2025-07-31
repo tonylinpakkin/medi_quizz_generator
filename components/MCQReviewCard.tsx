@@ -40,16 +40,17 @@ export const MCQReviewCard: React.FC<MCQReviewCardProps> = ({ initialMcq, onSave
 
   return (
     <div className="bg-white p-6 rounded-lg shadow-md border border-slate-200">
-      <div className="flex items-center justify-between mb-2">
+      <div className="mb-2">
         <button
           onClick={onCancel}
           type="button"
-          className="text-sm text-blue-600 hover:underline"
+          className="px-4 py-2 text-base font-medium text-blue-700 bg-blue-50 rounded hover:bg-blue-100"
         >
           {t('backToInput')}
         </button>
-        <h3 className="text-xl font-semibold text-slate-700">{t('reviewEdit')}</h3>
       </div>
+      <br />
+      <h3 className="text-xl font-semibold text-slate-700">{t('reviewEdit')}</h3>
       <p className="text-slate-500 mb-2">{t('reviewDraft')}</p>
       <p className="text-slate-500 mb-4">{t('reviewInstruction')}</p>
       
