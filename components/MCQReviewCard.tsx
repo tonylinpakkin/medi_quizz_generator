@@ -1,5 +1,5 @@
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import type { MCQ } from '../types';
 import { detectBias } from '../services/biasDetector';
 import { AlertTriangleIcon, SaveIcon, FileTextIcon } from './icons';
@@ -14,12 +14,18 @@ interface MCQReviewCardProps {
 export const MCQReviewCard: React.FC<MCQReviewCardProps> = ({ initialMcq, onSave, onCancel }) => {
   const [mcq, setMcq] = useState<MCQ>(initialMcq);
   const [selectedAnswer, setSelectedAnswer] = useState(mcq.correctAnswerId);
+  const [highlightSave, setHighlightSave] = useState(true);
   const { t } = useLanguage();
 
   const biasWarnings = useMemo(() => {
     const allText = [mcq.stem, ...mcq.options.map(o => o.text)].join(' ');
     return detectBias(allText);
   }, [mcq]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setHighlightSave(false), 3000);
+    return () => clearTimeout(timer);
+  }, []);
 
   const handleOptionChange = (optionId: string, newText: string) => {
     const newOptions = mcq.options.map(opt =>
@@ -111,7 +117,7 @@ export const MCQReviewCard: React.FC<MCQReviewCardProps> = ({ initialMcq, onSave
           </button>
           <button
               onClick={handleSave}
-              className="flex items-center justify-center px-6 py-2 bg-blue-600 text-white font-semibold rounded-md shadow-sm hover:bg-blue-700 transition-colors"
+              className={`flex items-center justify-center px-6 py-2 bg-blue-600 text-white font-semibold rounded-md shadow-sm hover:bg-blue-700 transition-colors ${highlightSave ? 'animate-pulse' : ''}`}
           >
               <SaveIcon className="w-5 h-5 mr-2" />
               {t('saveQuestion')}

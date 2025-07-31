@@ -76,7 +76,6 @@ const App: React.FC = () => {
     setCurrentMcq(null);
     setApiState(APIState.Idle);
     setSuccess(t('saveSuccess'));
-    setActiveTab('saved');
   };
   
   const handleCancelReview = () => {
@@ -119,8 +118,14 @@ const App: React.FC = () => {
         </nav>
 
         {success && (
-          <div className="mb-6 p-4 bg-green-100 border border-green-300 text-green-800 rounded-lg">
-            {success}
+          <div className="mb-6 p-4 bg-green-100 border border-green-300 text-green-800 rounded-lg flex items-center justify-between">
+            <span>{success}</span>
+            <button
+              onClick={() => setActiveTab('saved')}
+              className="ml-4 px-3 py-1 text-sm font-semibold text-green-800 bg-green-200 rounded hover:bg-green-300 transition-colors"
+            >
+              {t('viewSaved')}
+            </button>
           </div>
         )}
 
