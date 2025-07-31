@@ -71,7 +71,7 @@ export const MCQReviewCard: React.FC<MCQReviewCardProps> = ({ initialMcq, onSave
             value={mcq.stem}
             onChange={(e) => setMcq({ ...mcq, stem: e.target.value })}
             rows={3}
-            className="mt-1 w-full p-2 bg-white border border-slate-400 text-slate-900 rounded-md focus:ring-2 focus:ring-blue-500"
+            className="mt-1 w-full p-2 bg-yellow-50 border-2 border-blue-400 text-slate-900 rounded-md focus:ring-2 focus:ring-blue-500"
           />
         </label>
 
@@ -92,7 +92,7 @@ export const MCQReviewCard: React.FC<MCQReviewCardProps> = ({ initialMcq, onSave
                     type="text"
                     value={option.text}
                     onChange={(e) => handleOptionChange(option.id, e.target.value)}
-                    className="w-full p-2 bg-white border border-slate-400 text-slate-900 rounded-md focus:ring-2 focus:ring-blue-500"
+                    className="w-full p-2 bg-yellow-50 border-2 border-blue-400 text-slate-900 rounded-md focus:ring-2 focus:ring-blue-500"
                 />
             </div>
             ))}
@@ -112,7 +112,7 @@ export const MCQReviewCard: React.FC<MCQReviewCardProps> = ({ initialMcq, onSave
             value={mcq.rationale}
             onChange={(e) => setMcq({ ...mcq, rationale: e.target.value })}
             rows={3}
-            className="mt-1 w-full p-2 bg-white border border-slate-400 text-slate-900 rounded-md focus:ring-2 focus:ring-blue-500"
+            className="mt-1 w-full p-2 bg-yellow-50 border-2 border-blue-400 text-slate-900 rounded-md focus:ring-2 focus:ring-blue-500"
           />
         </label>
       </div>
