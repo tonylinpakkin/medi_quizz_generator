@@ -37,7 +37,8 @@ const translations: Record<Language, Record<string, string>> = {
     generateTab: 'Generate MCQ',
     savedTab: 'Saved MCQs',
     footerText: '\u00A9 2024 MCQ Drafter AI. For educational and research purposes only.',
-    saveSuccess: 'MCQ saved. Check the "Saved MCQs" tab.',
+    saveSuccess: 'MCQ saved.',
+    viewSaved: 'View Saved MCQs',
   },
   'zh-Hant': {
     pasteParagraph: '1. \u8CBC\u4E0A\u6587\u5B57\u6216\u4E0A\u50B3\u6A94\u6848',
@@ -73,7 +74,8 @@ const translations: Record<Language, Record<string, string>> = {
     generateTab: '\u751F\u6210\u984C\u76EE',
     savedTab: '\u5DF2\u5132\u5B58\u984C\u76EE',
     footerText: '\u00A9 2024 MCQ Drafter AI\u3002\u50C5\u4F9B\u6559\u80B2\u8207\u7814\u7A76\u7528\u9014\u3002',
-    saveSuccess: '\u984C\u76EE\u5DF2\u5132\u5B58\uFF0C\u53EF\u81F3\u300C\u5DF2\u5132\u5B58\u984C\u76EE\u300D\u5206\u9801\u67E5\u770B\u3002',
+    saveSuccess: '\u984C\u76EE\u5DF2\u5132\u5B58\u3002',
+    viewSaved: '\u6AA2\u8996\u5DF2\u5132\u5B58\u984C\u76EE',
   },
 };
 
