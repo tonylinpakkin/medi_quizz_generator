@@ -71,13 +71,14 @@ export const MCQReviewCard: React.FC<MCQReviewCardProps> = ({ initialMcq, onSave
       )}
 
       <div className="space-y-4">
-        <label className="block">
+        <label className="block relative group">
           <span className="font-semibold text-slate-600">{t('questionStem')}</span>
+          <EditIcon className="w-4 h-4 absolute right-2 top-6 text-blue-600 opacity-0 group-hover:opacity-100 pointer-events-none" />
           <textarea
             value={mcq.stem}
             onChange={(e) => setMcq({ ...mcq, stem: e.target.value })}
             rows={3}
-            className="mt-1 w-full p-2 bg-yellow-50 border-2 border-blue-400 text-slate-900 rounded-md focus:ring-2 focus:ring-blue-500"
+            className="mt-1 w-full p-2 bg-yellow-50 border-2 border-blue-400 text-slate-900 rounded-md focus:ring-2 focus:ring-blue-500 group-hover:cursor-pointer"
           />
         </label>
 
@@ -94,12 +95,15 @@ export const MCQReviewCard: React.FC<MCQReviewCardProps> = ({ initialMcq, onSave
                     onChange={(e) => setSelectedAnswer(e.target.value)}
                     className="h-5 w-5 text-blue-600 focus:ring-blue-500 border-slate-300"
                 />
-                <input
-                    type="text"
-                    value={option.text}
-                    onChange={(e) => handleOptionChange(option.id, e.target.value)}
-                    className="w-full p-2 bg-yellow-50 border-2 border-blue-400 text-slate-900 rounded-md focus:ring-2 focus:ring-blue-500"
-                />
+                <div className="relative group flex-grow">
+                    <EditIcon className="w-4 h-4 absolute right-2 top-1/2 -translate-y-1/2 text-blue-600 opacity-0 group-hover:opacity-100 pointer-events-none" />
+                    <input
+                        type="text"
+                        value={option.text}
+                        onChange={(e) => handleOptionChange(option.id, e.target.value)}
+                        className="w-full p-2 bg-yellow-50 border-2 border-blue-400 text-slate-900 rounded-md focus:ring-2 focus:ring-blue-500 group-hover:cursor-pointer"
+                    />
+                </div>
             </div>
             ))}
         </div>
@@ -112,13 +116,14 @@ export const MCQReviewCard: React.FC<MCQReviewCardProps> = ({ initialMcq, onSave
             </div>
         </div>
 
-        <label className="block pt-2">
+        <label className="block pt-2 relative group">
           <span className="font-semibold text-slate-600">{t('answerRationale')}</span>
+          <EditIcon className="w-4 h-4 absolute right-2 top-7 text-blue-600 opacity-0 group-hover:opacity-100 pointer-events-none" />
           <textarea
             value={mcq.rationale}
             onChange={(e) => setMcq({ ...mcq, rationale: e.target.value })}
             rows={3}
-            className="mt-1 w-full p-2 bg-yellow-50 border-2 border-blue-400 text-slate-900 rounded-md focus:ring-2 focus:ring-blue-500"
+            className="mt-1 w-full p-2 bg-yellow-50 border-2 border-blue-400 text-slate-900 rounded-md focus:ring-2 focus:ring-blue-500 group-hover:cursor-pointer"
           />
         </label>
       </div>
