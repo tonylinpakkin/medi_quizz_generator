@@ -21,6 +21,7 @@ const App: React.FC = () => {
   const [success, setSuccess] = useState<string | null>(null);
   const { t } = useLanguage();
 
+
   useEffect(() => {
     getAllMCQs().then(setSavedMcqs).catch((err) => {
       console.error('Failed to load MCQs from IndexedDB', err);

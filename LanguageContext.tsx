@@ -40,6 +40,9 @@ const translations: Record<Language, Record<string, string>> = {
     saveSuccess: 'MCQ saved.',
     viewSaved: 'View Saved MCQs',
     backToInput: 'Back to Input',
+    progressStep1: 'Step 1',
+    progressStep2: 'Step 2',
+    progressStep3: 'Step 3',
   },
   'zh-Hant': {
     pasteParagraph: '1. \u8CBC\u4E0A\u6587\u5B57\u6216\u4E0A\u50B3\u6A94\u6848',
@@ -78,6 +81,9 @@ const translations: Record<Language, Record<string, string>> = {
     saveSuccess: '\u984C\u76EE\u5DF2\u5132\u5B58\u3002',
     viewSaved: '\u6AA2\u8996\u5DF2\u5132\u5B58\u984C\u76EE',
     backToInput: '\u8FD4\u56DE\u8F38\u5165\u9801\u9762',
+    progressStep1: '\u6B65\u9A5F 1',
+    progressStep2: '\u6B65\u9A5F 2',
+    progressStep3: '\u6B65\u9A5F 3',
   },
 };
 
