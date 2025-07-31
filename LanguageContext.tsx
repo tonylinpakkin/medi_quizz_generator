@@ -12,6 +12,7 @@ const translations: Record<Language, Record<string, string>> = {
     generateMcq: 'Generate MCQ',
     reviewEdit: 'Review & Edit Question',
     reviewDraft: 'This is a draft. Please review, edit, and approve the content. The AI-selected answer is pre-filled.',
+    reviewInstruction: 'After reviewing, click "Save Question" to keep it. You can view saved questions in the "Saved MCQs" tab.',
     biasFlag: 'Bias Detector Flag',
     potentialBias: 'Potential bias detected for terms: {terms}. Please review the text for appropriate context.',
     potentialBiasShort: 'Potential bias detected',
@@ -36,6 +37,7 @@ const translations: Record<Language, Record<string, string>> = {
     generateTab: 'Generate MCQ',
     savedTab: 'Saved MCQs',
     footerText: '\u00A9 2024 MCQ Drafter AI. For educational and research purposes only.',
+    saveSuccess: 'MCQ saved. Check the "Saved MCQs" tab.',
   },
   'zh-Hant': {
     pasteParagraph: '1. \u8CBC\u4E0A\u6587\u5B57\u6216\u4E0A\u50B3\u6A94\u6848',
@@ -46,6 +48,7 @@ const translations: Record<Language, Record<string, string>> = {
     generateMcq: '\u751F\u6210\u9078\u64C7\u984C',
     reviewEdit: '\u5BE9\u95B1\u4E26\u7DE8\u8F2F\u984C\u76EE',
     reviewDraft: '\u6B64\u70BA\u8349\u7A3F\uFF0C\u8ACB\u5BE9\u95B1\u3001\u7DE8\u8F2F\u4E26\u78BA\u8A8D\u5167\u5BB9\u3002AI \u9810\u9078\u7684\u7B54\u6848\u5DF2\u586B\u5165\u3002',
+    reviewInstruction: '\u5BE9\u95B1\u5B8C\u6210\u5F8C\uFF0C\u9EDE\u64CA\u300C\u5132\u5B58\u984C\u76EE\u300D\u4EE5\u4FDD\u7559\u3002\u53EF\u5728\u300C\u5DF2\u5132\u5B58\u984C\u76EE\u300D\u5206\u9801\u67E5\u770B\u3002',
     biasFlag: '\u504F\u898B\u5075\u6E2C\u8B66\u793A',
     potentialBias: '\u5075\u6E2C\u5230\u53EF\u80FD\u5177\u504F\u898B\u7684\u8A5E\u5F59\uFF1A{terms}\u3002\u8ACB\u6AA2\u8996\u6587\u5B57\u662F\u5426\u5408\u9069\u3002',
     potentialBiasShort: '\u53EF\u80FD\u7684\u504F\u898B\u5DF2\u5075\u6E2C',
@@ -70,6 +73,7 @@ const translations: Record<Language, Record<string, string>> = {
     generateTab: '\u751F\u6210\u984C\u76EE',
     savedTab: '\u5DF2\u5132\u5B58\u984C\u76EE',
     footerText: '\u00A9 2024 MCQ Drafter AI\u3002\u50C5\u4F9B\u6559\u80B2\u8207\u7814\u7A76\u7528\u9014\u3002',
+    saveSuccess: '\u984C\u76EE\u5DF2\u5132\u5B58\uFF0C\u53EF\u81F3\u300C\u5DF2\u5132\u5B58\u984C\u76EE\u300D\u5206\u9801\u67E5\u770B\u3002',
   },
 };
 

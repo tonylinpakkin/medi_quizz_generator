@@ -17,6 +17,7 @@ const App: React.FC = () => {
   const [savedMcqs, setSavedMcqs] = useState<MCQ[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'generate' | 'saved'>('generate');
+  const [success, setSuccess] = useState<string | null>(null);
   const { t } = useLanguage();
 
   useEffect(() => {
@@ -24,6 +25,13 @@ const App: React.FC = () => {
       console.error('Failed to load MCQs from IndexedDB', err);
     });
   }, []);
+
+  useEffect(() => {
+    if (success) {
+      const timer = setTimeout(() => setSuccess(null), 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [success]);
 
   const handleGenerateMCQ = useCallback(async (text: string) => {
     if (!text.trim()) {
@@ -67,6 +75,8 @@ const App: React.FC = () => {
     });
     setCurrentMcq(null);
     setApiState(APIState.Idle);
+    setSuccess(t('saveSuccess'));
+    setActiveTab('saved');
   };
   
   const handleCancelReview = () => {
@@ -104,9 +114,15 @@ const App: React.FC = () => {
             className={`pb-2 ${activeTab === 'saved' ? 'border-b-2 border-blue-600 text-blue-600 font-semibold' : 'text-slate-600'}`}
             onClick={() => setActiveTab('saved')}
           >
-            {t('savedTab')}
+          {t('savedTab')}
           </button>
         </nav>
+
+        {success && (
+          <div className="mb-6 p-4 bg-green-100 border border-green-300 text-green-800 rounded-lg">
+            {success}
+          </div>
+        )}
 
         {currentMcq ? (
           <div className="animate-fade-in">
