@@ -5,12 +5,18 @@ import { useLanguage } from '../LanguageContext';
 import { parseFile } from '../services/fileParser';
 
 interface ThesisInputProps {
+  text: string;
+  onTextChange: (text: string) => void;
   onGenerate: (text: string) => void;
   isLoading: boolean;
 }
 
-export const ThesisInput: React.FC<ThesisInputProps> = ({ onGenerate, isLoading }) => {
-  const [text, setText] = useState('');
+export const ThesisInput: React.FC<ThesisInputProps> = ({
+  text,
+  onTextChange,
+  onGenerate,
+  isLoading,
+}) => {
   const [reading, setReading] = useState(false);
   const { t } = useLanguage();
 
@@ -24,7 +30,7 @@ export const ThesisInput: React.FC<ThesisInputProps> = ({ onGenerate, isLoading 
     setReading(true);
     try {
       const fileText = await parseFile(file);
-      setText(fileText);
+      onTextChange(fileText);
     } catch (err) {
       alert(t('fileReadError'));
     } finally {
@@ -38,7 +44,7 @@ export const ThesisInput: React.FC<ThesisInputProps> = ({ onGenerate, isLoading 
       <p className="text-slate-500 mb-4">{t('provideParagraph')}</p>
       <textarea
         value={text}
-        onChange={(e) => setText(e.target.value)}
+        onChange={(e) => onTextChange(e.target.value)}
         placeholder="e.g., 'Primary aldosteronism is the most common cause of secondary hypertension, with recent studies suggesting a prevalence of 5-10% in hypertensive populations...'"
         className="w-full h-48 p-3 bg-white border border-slate-400 rounded-md text-slate-900 placeholder:text-slate-500 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-shadow duration-200 resize-y disabled:bg-slate-200 disabled:text-slate-500 disabled:cursor-not-allowed"
         disabled={isLoading || reading}

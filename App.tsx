@@ -14,6 +14,7 @@ import { useLanguage } from './LanguageContext';
 const App: React.FC = () => {
   const [apiState, setApiState] = useState<APIState>(APIState.Idle);
   const [currentMcq, setCurrentMcq] = useState<MCQ | null>(null);
+  const [inputText, setInputText] = useState('');
   const [savedMcqs, setSavedMcqs] = useState<MCQ[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'generate' | 'saved'>('generate');
@@ -142,7 +143,12 @@ const App: React.FC = () => {
           <>
             {activeTab === 'generate' && (
               <>
-                <ThesisInput onGenerate={handleGenerateMCQ} isLoading={apiState === APIState.Loading} />
+                <ThesisInput
+                  text={inputText}
+                  onTextChange={setInputText}
+                  onGenerate={handleGenerateMCQ}
+                  isLoading={apiState === APIState.Loading}
+                />
 
                 {apiState === APIState.Loading && (
                   <div className="flex flex-col items-center justify-center mt-12 text-center bg-white p-8 rounded-lg shadow-md border border-slate-200">
