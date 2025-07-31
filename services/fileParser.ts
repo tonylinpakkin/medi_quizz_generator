@@ -5,8 +5,9 @@ export async function parseFile(file: File): Promise<string> {
     return file.text();
   }
   if (ext === 'pdf') {
-    const pdfjs = await import('https://esm.sh/pdfjs-dist@3.11.174/build/pdf?esm');
-    pdfjs.GlobalWorkerOptions.workerSrc = 'https://esm.sh/pdfjs-dist@3.11.174/build/pdf.worker.min.js';
+    const pdfjs = await import('pdfjs-dist/build/pdf');
+    const worker = await import('pdfjs-dist/build/pdf.worker?url');
+    pdfjs.GlobalWorkerOptions.workerSrc = worker.default;
     const arrayBuffer = await file.arrayBuffer();
     const doc = await pdfjs.getDocument({ data: arrayBuffer }).promise;
     let text = '';
@@ -18,7 +19,7 @@ export async function parseFile(file: File): Promise<string> {
     return text;
   }
   if (ext === 'docx' || ext === 'doc') {
-    const mammoth = await import('https://esm.sh/mammoth@1.4.25');
+    const mammoth = await import('mammoth/mammoth.browser');
     const arrayBuffer = await file.arrayBuffer();
     const result = await mammoth.extractRawText({ arrayBuffer });
     return result.value;
