@@ -22,6 +22,7 @@ const App: React.FC = () => {
   const [success, setSuccess] = useState<string | null>(null);
   const { t } = useLanguage();
 
+  const currentStep = currentMcq ? 2 : activeTab === 'saved' ? 3 : 1;
 
   useEffect(() => {
     getAllMCQs().then(setSavedMcqs).catch((err) => {
