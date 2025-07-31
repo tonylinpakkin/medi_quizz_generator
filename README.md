@@ -14,6 +14,11 @@ This contains everything you need to run your app locally.
 3. Run the app:
   `npm run dev`
 
+## Input Sources
+
+You can paste text directly into the app or upload PDF, Word, or text files. The
+content from the file will be extracted automatically for question generation.
+
 ## Medical Content Only
 
 The generator verifies that your input relates to medicine. If the text is not medical, an error is displayed and no question is produced.

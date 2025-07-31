@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { SparklesIcon } from './icons';
 import { useLanguage } from '../LanguageContext';
+import { extractTextFromFile } from '../services/fileService';
 
 interface ThesisInputProps {
   onGenerate: (text: string) => void;
@@ -12,6 +13,17 @@ export const ThesisInput: React.FC<ThesisInputProps> = ({ onGenerate, isLoading 
   const [text, setText] = useState('');
   const { t } = useLanguage();
 
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    try {
+      const content = await extractTextFromFile(file);
+      setText(content);
+    } catch (err) {
+      console.error('Failed to read file', err);
+    }
+  };
+
   const handleGenerateClick = () => {
     onGenerate(text);
   };
@@ -20,6 +32,19 @@ export const ThesisInput: React.FC<ThesisInputProps> = ({ onGenerate, isLoading 
     <div className="bg-white p-6 rounded-lg shadow-md border border-slate-200">
       <h2 className="text-xl font-semibold text-slate-700 mb-2">{t('pasteParagraph')}</h2>
       <p className="text-slate-500 mb-4">{t('provideParagraph')}</p>
+      <div className="mb-4">
+        <label className="block text-sm font-medium mb-1" htmlFor="fileInput">
+          {t('uploadFile')}
+        </label>
+        <input
+          id="fileInput"
+          type="file"
+          accept=".txt,.doc,.docx,.pdf,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain"
+          onChange={handleFileChange}
+          disabled={isLoading}
+          className="block w-full text-sm text-slate-700 border border-slate-300 rounded-md file:mr-3 file:py-1 file:px-2 file:rounded file:border-0 file:bg-blue-600 file:text-white hover:file:bg-blue-700 disabled:opacity-60"
+        />
+      </div>
       <textarea
         value={text}
         onChange={(e) => setText(e.target.value)}

@@ -4,8 +4,9 @@ export type Language = 'en' | 'zh-Hant';
 
 const translations: Record<Language, Record<string, string>> = {
   en: {
-    pasteParagraph: '1. Paste Your Thesis Paragraph',
-    provideParagraph: 'Provide a paragraph from your thesis or clinical notes. The AI will use this context to create a question.',
+    pasteParagraph: '1. Paste or Upload Thesis Text',
+    provideParagraph: 'Provide a paragraph from your thesis or clinical notes, or upload a PDF, Word, or text file.',
+    uploadFile: 'Upload File (PDF, Word, or TXT)',
     generating: 'Generating...',
     generateMcq: 'Generate MCQ',
     reviewEdit: 'Review & Edit Question',
@@ -36,8 +37,9 @@ const translations: Record<Language, Record<string, string>> = {
     footerText: '\u00A9 2024 MCQ Drafter AI. For educational and research purposes only.',
   },
   'zh-Hant': {
-    pasteParagraph: '1. \u8ACB\u8CBC\u4E0A\u60A8\u7684\u8AD6\u6587\u6BB5\u843D',
-    provideParagraph: '\u63D0\u4F9B\u8AD6\u6587\u6216\u81EA\u734E\u81E8\u5DE5\u7B46\u8A18\u7684\u6BB5\u843D\uFF0CAI \u6703\u6839\u64DA\u6B64\u5167\u5BB9\u7522\u751F\u8003\u984C\u3002',
+    pasteParagraph: '1. \u8ACB\u8CBC\u4E0A\u6216\u4E0A\u50B3\u8AD6\u6587\u6BB5\u843D',
+    provideParagraph: '\u63D0\u4F9B\u8AD6\u6587\u6216\u81E8\u5DE5\u7B46\u8A18\u6BB5\u843D\uFF0C\u6216\u4E0A\u50B3 PDF\u3001Word \u6216 TXT \u6A94\u3002',
+    uploadFile: '\u4E0A\u50B3\u6A94\u6848 (PDF\u3001Word \u6216 TXT)',
     generating: '\u7522\u751F\u4E2D\u2026',
     generateMcq: '\u751F\u6210\u9078\u64C7\u984C',
     reviewEdit: '\u5BE9\u95B1\u4E26\u7DE8\u8F2F\u984C\u76EE',
