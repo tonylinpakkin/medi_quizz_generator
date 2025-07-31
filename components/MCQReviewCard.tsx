@@ -35,7 +35,8 @@ export const MCQReviewCard: React.FC<MCQReviewCardProps> = ({ initialMcq, onSave
   return (
     <div className="bg-white p-6 rounded-lg shadow-md border border-slate-200">
       <h3 className="text-xl font-semibold text-slate-700 mb-2">{t('reviewEdit')}</h3>
-      <p className="text-slate-500 mb-4">{t('reviewDraft')}</p>
+      <p className="text-slate-500 mb-2">{t('reviewDraft')}</p>
+      <p className="text-slate-500 mb-4">{t('reviewInstruction')}</p>
       
       {biasWarnings.length > 0 && (
           <div className="mb-4 p-3 bg-yellow-100 border-l-4 border-yellow-400 text-yellow-800 rounded-r-lg flex items-start">
