@@ -4,6 +4,7 @@ import { Header } from './components/Header';
 import { ThesisInput } from './components/ThesisInput';
 import { MCQReviewCard } from './components/MCQReviewCard';
 import { SavedMCQList } from './components/SavedMCQList';
+import { ProgressIndicator } from './components/ProgressIndicator';
 import { generateMCQFromText } from './services/geminiService';
 import { isMedicalContent } from './services/medicalClassifier';
 import { getAllMCQs, saveMCQ, deleteMCQ as deleteMCQFromDb } from './services/mcqStorage';
@@ -104,6 +105,7 @@ const App: React.FC = () => {
     <div className="min-h-screen bg-slate-50 font-sans text-slate-800">
       <Header />
       <main className="container mx-auto px-4 py-8 max-w-4xl">
+        <ProgressIndicator step={currentStep} />
         <nav className="mb-6 border-b border-slate-200 flex space-x-6">
           <button
             className={`pb-2 ${activeTab === 'generate' ? 'border-b-2 border-blue-600 text-blue-600 font-semibold' : 'text-slate-600'}`}
@@ -118,6 +120,7 @@ const App: React.FC = () => {
           {t('savedTab')}
           </button>
         </nav>
+        <ProgressIndicator step={currentStep} />
 
         {success && (
           <div className="mb-6 p-4 bg-green-100 border border-green-300 text-green-800 rounded-lg flex items-center justify-between">
