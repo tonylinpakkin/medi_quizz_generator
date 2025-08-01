@@ -23,7 +23,7 @@ export const isMedicalContent = async (text: string): Promise<boolean> => {
       },
     });
 
-    const result = JSON.parse(response.text.trim());
+    const result = JSON.parse(response.text!.trim());
     return Boolean(result.medical);
   } catch (err) {
     console.error('Gemini medical classification failed:', err);

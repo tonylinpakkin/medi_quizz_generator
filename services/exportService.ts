@@ -41,7 +41,7 @@ export const exportMCQsToPDF = (mcqs: MCQ[]): void => {
   const addWrappedText = (text: string, x: number) => {
     const maxWidth = pageWidth - margin - x;
     const lines = doc.splitTextToSize(text, maxWidth);
-    lines.forEach(line => {
+    lines.forEach((line: string) => {
       if (y > pageHeight - margin) {
         doc.addPage();
         y = margin;

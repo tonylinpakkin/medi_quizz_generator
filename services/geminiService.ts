@@ -74,7 +74,7 @@ export const generateMCQFromText = async (text: string, current = 1, total = 1):
             },
         });
         
-        const jsonText = response.text.trim();
+        const jsonText = response.text!.trim();
         const parsedJson = JSON.parse(jsonText);
         
         // Basic validation
