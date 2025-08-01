@@ -8,16 +8,15 @@ import { useLanguage } from '../LanguageContext';
 
 interface MCQReviewCardProps {
   initialMcq: MCQ;
-  onSave: (mcq: MCQ) => void;
-  onCancel: () => void;
+  onUpdate: (mcq: MCQ) => void;
+  onDiscard: (id: string) => void;
   questionIndex: number;
   totalQuestions: number;
 }
 
-export const MCQReviewCard: React.FC<MCQReviewCardProps> = ({ initialMcq, onSave, onCancel, questionIndex, totalQuestions }) => {
+export const MCQReviewCard: React.FC<MCQReviewCardProps> = ({ initialMcq, onUpdate, onDiscard, questionIndex, totalQuestions }) => {
   const [mcq, setMcq] = useState<MCQ>(initialMcq);
   const [selectedAnswer, setSelectedAnswer] = useState(mcq.correctAnswerId);
-  const [highlightSave, setHighlightSave] = useState(true);
   const [copied, setCopied] = useState(false);
   const { t } = useLanguage();
 
@@ -27,9 +26,8 @@ export const MCQReviewCard: React.FC<MCQReviewCardProps> = ({ initialMcq, onSave
   }, [mcq]);
 
   useEffect(() => {
-    const timer = setTimeout(() => setHighlightSave(false), 3000);
-    return () => clearTimeout(timer);
-  }, []);
+    onUpdate({ ...mcq, correctAnswerId: selectedAnswer });
+  }, [mcq, selectedAnswer, onUpdate]);
 
   const handleOptionChange = (optionId: string, newText: string) => {
     const newOptions = mcq.options.map(opt =>
@@ -48,22 +46,8 @@ export const MCQReviewCard: React.FC<MCQReviewCardProps> = ({ initialMcq, onSave
     }
   };
   
-  const handleSave = () => {
-    onSave({ ...mcq, correctAnswerId: selectedAnswer });
-  };
-
   return (
     <div className="bg-white p-6 rounded-lg shadow-md border border-slate-200">
-      <div className="mb-2">
-        <button
-          onClick={onCancel}
-          type="button"
-          className="px-4 py-2 text-base font-medium text-blue-700 bg-blue-50 rounded hover:bg-blue-100"
-        >
-          {t('backToInput')}
-        </button>
-      </div>
-      <br />
       <h3 className="text-xl font-semibold text-slate-700 flex items-center">
         {t('reviewEdit')}
         <span className="ml-3 inline-flex items-center px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 text-xs font-medium">
@@ -151,26 +135,19 @@ export const MCQReviewCard: React.FC<MCQReviewCardProps> = ({ initialMcq, onSave
       
       <div className="mt-6 pt-4 border-t border-slate-200 flex justify-end items-center space-x-3">
           <button
-            onClick={onCancel}
-            type="button"
-            className="px-6 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-md hover:bg-slate-100 transition-colors"
-          >
-            {t('cancel')}
-          </button>
-          <button
             onClick={handleCopy}
             type="button"
-            className="flex items-center px-6 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-md hover:bg-slate-100 transition-colors"
+            className="flex items-center px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-md hover:bg-slate-100 transition-colors"
           >
-            <ClipboardIcon className="w-5 h-5 mr-2" />
+            <ClipboardIcon className="w-4 h-4 mr-2" />
             {copied ? t('copied') : t('copy')}
           </button>
           <button
-              onClick={handleSave}
-              className={`flex items-center justify-center px-6 py-2 bg-blue-600 text-white font-semibold rounded-md shadow-sm hover:bg-blue-700 transition-colors ${highlightSave ? 'animate-pulse' : ''}`}
+              onClick={() => onDiscard(mcq.id)}
+              className="flex items-center px-4 py-2 text-sm font-medium text-red-700 bg-red-50 border border-red-200 rounded-md hover:bg-red-100 transition-colors"
           >
-              <SaveIcon className="w-5 h-5 mr-2" />
-              {t('saveQuestion')}
+              <TrashIcon className="w-4 h-4 mr-2" />
+              {t('discard')}
           </button>
       </div>
     </div>
