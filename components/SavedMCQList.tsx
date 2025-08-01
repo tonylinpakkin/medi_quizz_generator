@@ -1,8 +1,9 @@
 
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import type { MCQ } from '../types';
 import { detectBias } from '../services/biasDetector';
-import { EditIcon, TrashIcon, FileTextIcon, CheckCircleIcon, AlertTriangleIcon } from './icons';
+import { EditIcon, TrashIcon, FileTextIcon, CheckCircleIcon, AlertTriangleIcon, ClipboardIcon } from './icons';
+import { mcqToPlainText } from '../services/mcqFormatter';
 import { exportMCQsToWord, exportMCQsToPDF } from '../services/exportService';
 import { useLanguage } from '../LanguageContext';
 
@@ -45,11 +46,22 @@ interface SavedMCQItemProps {
 
 const SavedMCQItem: React.FC<SavedMCQItemProps> = ({ mcq, onEdit, onDelete }) => {
   const { t } = useLanguage();
+  const [copied, setCopied] = useState(false);
   const biasWarnings = useMemo(() => {
     const allText = [mcq.stem, ...mcq.options.map(o => o.text)].join(' ');
     return detectBias(allText);
   }, [mcq]);
   const flaggedWordsSet = useMemo(() => new Set(biasWarnings), [biasWarnings]);
+
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(mcqToPlainText(mcq));
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      // ignore copy errors
+    }
+  };
 
   return (
     <li className="bg-white p-6 rounded-lg shadow-md border border-slate-200 space-y-4">
@@ -91,6 +103,10 @@ const SavedMCQItem: React.FC<SavedMCQItemProps> = ({ mcq, onEdit, onDelete }) =>
       )}
       
       <div className="mt-4 pt-4 border-t border-slate-200 flex justify-end space-x-3">
+        <button onClick={handleCopy} className="flex items-center px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-md hover:bg-slate-100 transition-colors">
+          <ClipboardIcon className="w-4 h-4 mr-2" />
+          {copied ? t('copied') : t('copy')}
+        </button>
         <button onClick={() => onEdit(mcq.id)} className="flex items-center px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-md hover:bg-slate-100 transition-colors">
           <EditIcon className="w-4 h-4 mr-2" />
           {t('edit')}
