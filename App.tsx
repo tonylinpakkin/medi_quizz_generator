@@ -5,6 +5,7 @@ import { ThesisInput } from './components/ThesisInput';
 import { MCQReviewCard } from './components/MCQReviewCard';
 import { SavedMCQList } from './components/SavedMCQList';
 import { ProgressIndicator } from './components/ProgressIndicator';
+import OnboardingOverlay from './components/OnboardingOverlay';
 import { generateMCQFromText } from './services/geminiService';
 import { isMedicalContent } from './services/medicalClassifier';
 import { getAllMCQs, saveMCQ, deleteMCQ as deleteMCQFromDb } from './services/mcqStorage';
@@ -21,6 +22,7 @@ const App: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'generate' | 'saved'>('generate');
   const [success, setSuccess] = useState<string | null>(null);
   const [questionCount, setQuestionCount] = useState(1);
+  const [showOnboarding, setShowOnboarding] = useState(false);
   const { t } = useLanguage();
 
   const currentStep = currentMcqs.length > 0 ? 2 : activeTab === 'saved' ? 3 : 1;
@@ -29,6 +31,12 @@ const App: React.FC = () => {
     getAllMCQs().then(setSavedMcqs).catch((err) => {
       console.error('Failed to load MCQs from IndexedDB', err);
     });
+  }, []);
+
+  useEffect(() => {
+    if (localStorage.getItem('onboardingSeen') !== '1') {
+      setShowOnboarding(true);
+    }
   }, []);
 
   useEffect(() => {
@@ -119,9 +127,17 @@ const App: React.FC = () => {
     setSavedMcqs(prevMcqs => prevMcqs.filter(mcq => mcq.id !== mcqId));
   };
 
+  const handleDismissOnboarding = () => {
+    setShowOnboarding(false);
+    localStorage.setItem('onboardingSeen', '1');
+  };
+
 
   return (
     <div className="min-h-screen bg-slate-50 font-sans text-slate-800">
+      {showOnboarding && (
+        <OnboardingOverlay onClose={handleDismissOnboarding} />
+      )}
       <Header />
       <main className="container mx-auto px-4 py-8 max-w-4xl">
         <nav className="mb-6 border-b border-slate-200 flex space-x-2">

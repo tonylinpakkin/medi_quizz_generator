@@ -46,6 +46,11 @@ const translations: Record<Language, Record<string, string>> = {
     progressStep3: 'Step 3: Saved MCQs',
     chooseQuestionCount: 'Select number of questions',
     questionCountDisplay: 'Question {current} of {total}',
+    welcome: 'Welcome to MCQ Drafter AI',
+    onboardStep1: 'Enter or upload your text on the Generate MCQ tab.',
+    onboardStep2: 'Review the AI-generated questions and make edits.',
+    onboardStep3: 'Save questions or export them to Word or PDF.',
+    onboardGotIt: 'Got it!',
   },
   'zh-Hant': {
     pasteParagraph: '1. \u8CBC\u4E0A\u6587\u5B57\u6216\u4E0A\u50B3\u6A94\u6848',
@@ -90,6 +95,11 @@ const translations: Record<Language, Record<string, string>> = {
     progressStep3: '\u6B65\u9A5F 3\uFF1A\u67E5\u770B\u5DF2\u5132\u5B58',
     chooseQuestionCount: '\u9078\u64C7\u8981\u751F\u6210\u7684\u984C\u6578',
     questionCountDisplay: '\u7B2C {current}/{total} \u984C',
+    welcome: '\u6B61\u8FCE\u4F7F\u7528 MCQ Drafter AI',
+    onboardStep1: '\u5728\u300C\u751F\u6210\u984C\u76EE\u300D\u9801\u9762\u8F38\u5165\u6216\u4E0A\u50B3\u6587\u4EF6\u3002',
+    onboardStep2: '\u6AA2\u8996 AI \u7522\u751F\u7684\u984C\u76EE\u4E26\u9032\u884C\u7DE8\u8F2F\u3002',
+    onboardStep3: '\u5132\u5B58\u984C\u76EE\u6216\u532F\u51FA Word/PDF\u3002',
+    onboardGotIt: '\u77E5\u9053\u4E86\uff01',
   },
 };
 
