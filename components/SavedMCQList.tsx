@@ -92,11 +92,11 @@ const SavedMCQItem: React.FC<SavedMCQItemProps> = ({ mcq, onEdit, onDelete }) =>
       
       <div className="mt-4 pt-4 border-t border-slate-200 flex justify-end space-x-3">
         <button onClick={() => onEdit(mcq.id)} className="flex items-center px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-md hover:bg-slate-100 transition-colors">
-          <EditIcon className="w-4 h-4 mr-2" />
+          <EditIcon className="w-4 h-4 mr-2" title={t('edit')} />
           {t('edit')}
         </button>
         <button onClick={() => onDelete(mcq.id)} className="flex items-center px-4 py-2 text-sm font-medium text-red-700 bg-red-50 border border-red-200 rounded-md hover:bg-red-100 transition-colors">
-          <TrashIcon className="w-4 h-4 mr-2" />
+          <TrashIcon className="w-4 h-4 mr-2" title={t('delete')} />
           {t('delete')}
         </button>
       </div>
@@ -124,12 +124,14 @@ export const SavedMCQList: React.FC<SavedMCQListProps> = ({ mcqs, onEdit, onDele
           <button
             onClick={() => exportMCQsToWord(mcqs)}
             className="px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-md hover:bg-slate-100"
+            title={t('exportWord')}
           >
             {t('exportWord')}
           </button>
           <button
             onClick={() => exportMCQsToPDF(mcqs)}
             className="px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-md hover:bg-slate-100"
+            title={t('exportPDF')}
           >
             {t('exportPDF')}
           </button>
