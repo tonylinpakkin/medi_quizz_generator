@@ -20,6 +20,7 @@ const App: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'generate' | 'saved'>('generate');
   const [success, setSuccess] = useState<string | null>(null);
+  const [remainingGenerations, setRemainingGenerations] = useState(0);
   const { t } = useLanguage();
 
   const currentStep = currentMcq ? 2 : activeTab === 'saved' ? 3 : 1;
@@ -37,7 +38,7 @@ const App: React.FC = () => {
     }
   }, [success]);
 
-  const handleGenerateMCQ = useCallback(async (text: string) => {
+  const handleGenerateMCQ = useCallback(async (text: string, count = 1) => {
     if (!text.trim()) {
       setError(t('pleaseEnterText'));
       return;
@@ -45,12 +46,14 @@ const App: React.FC = () => {
     setApiState(APIState.Loading);
     setError(null);
     setCurrentMcq(null);
+    setRemainingGenerations(count - 1);
 
     try {
       const medical = await isMedicalContent(text);
       if (!medical) {
         setError(t('nonMedicalError'));
         setApiState(APIState.Error);
+        setRemainingGenerations(0);
         return;
       }
 
@@ -62,8 +65,9 @@ const App: React.FC = () => {
       const errorMessage = err instanceof Error ? err.message : "An unknown error occurred.";
       setError(`${t('failedGenerate')} ${errorMessage}`);
       setApiState(APIState.Error);
+      setRemainingGenerations(0);
     }
-  }, []);
+  }, [t]);
 
   const handleSaveMCQ = (mcqToSave: MCQ) => {
     saveMCQ(mcqToSave).catch(err => console.error('Failed to save MCQ', err));
@@ -77,8 +81,13 @@ const App: React.FC = () => {
         return [...prevMcqs, mcqToSave];
       }
     });
-    setCurrentMcq(null);
-    setApiState(APIState.Idle);
+    if (remainingGenerations > 0) {
+      setRemainingGenerations(prev => prev - 1);
+      handleGenerateMCQ(inputText, 1);
+    } else {
+      setCurrentMcq(null);
+      setApiState(APIState.Idle);
+    }
     setSuccess(t('saveSuccess'));
   };
   
@@ -86,6 +95,7 @@ const App: React.FC = () => {
     setCurrentMcq(null);
     setApiState(APIState.Idle);
     setError(null);
+    setRemainingGenerations(0);
   };
 
   const handleEditMCQ = (mcqId: string) => {
