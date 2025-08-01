@@ -44,6 +44,7 @@ export const ThesisInput: React.FC<ThesisInputProps> = ({
       <h2 className="text-xl font-semibold text-slate-700 mb-2">{t('pasteParagraph')}</h2>
       <p className="text-slate-500 mb-4">{t('provideParagraph')}</p>
       <textarea
+        id="tour-thesis-input"
         value={text}
         onChange={(e) => onTextChange(e.target.value)}
         placeholder="e.g., 'Primary aldosteronism is the most common cause of secondary hypertension, with recent studies suggesting a prevalence of 5-10% in hypertensive populations...'"
@@ -51,10 +52,11 @@ export const ThesisInput: React.FC<ThesisInputProps> = ({
         disabled={isLoading || reading}
       />
       <div className="mt-4">
-        <label className="block text-sm font-medium text-slate-700 mb-1">
+        <label className="block text-sm font-medium text-slate-700 mb-1" htmlFor="tour-file-upload">
           {t('uploadFile')}
         </label>
         <input
+          id="tour-file-upload"
           type="file"
           accept=".pdf,.doc,.docx,.txt"
           onChange={handleFileChange}
@@ -63,9 +65,10 @@ export const ThesisInput: React.FC<ThesisInputProps> = ({
         />
       </div>
       <div className="mt-4 flex flex-col sm:flex-row items-center justify-end gap-3">
-        <label className="text-sm font-medium text-slate-700 flex items-center">
+        <label className="text-sm font-medium text-slate-700 flex items-center" htmlFor="tour-question-count">
           {t('numberOfQuestions')}
           <input
+            id="tour-question-count"
             type="number"
             min={1}
             max={5}
@@ -76,6 +79,7 @@ export const ThesisInput: React.FC<ThesisInputProps> = ({
           />
         </label>
         <button
+          id="tour-generate-button"
           onClick={handleGenerateClick}
           disabled={isLoading || reading || !text.trim()}
           className="flex items-center justify-center px-6 py-3 bg-blue-600 text-white font-semibold rounded-md shadow-sm hover:bg-blue-700 disabled:bg-slate-400 disabled:cursor-not-allowed transition-colors duration-200"
