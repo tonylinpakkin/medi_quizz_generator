@@ -5,11 +5,13 @@ import { ThesisInput } from './components/ThesisInput';
 import { MCQReviewCard } from './components/MCQReviewCard';
 import { SavedMCQList } from './components/SavedMCQList';
 import { ProgressIndicator } from './components/ProgressIndicator';
+import { Tour } from './components/Tour';
 import { generateMCQFromText } from './services/geminiService';
 import { isMedicalContent } from './services/medicalClassifier';
 import { getAllMCQs, saveMCQ, deleteMCQ as deleteMCQFromDb } from './services/mcqStorage';
 import { MCQ, APIState } from './types';
 import LoadingOverlay from './components/LoadingOverlay';
+import ErrorOverlay from './components/ErrorOverlay';
 import { useLanguage } from './LanguageContext';
 
 const App: React.FC = () => {
@@ -21,6 +23,7 @@ const App: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'generate' | 'saved'>('generate');
   const [success, setSuccess] = useState<string | null>(null);
   const [questionCount, setQuestionCount] = useState(1);
+  const [runTour, setRunTour] = useState(false);
   const { t } = useLanguage();
 
   const currentStep = currentMcqs.length > 0 ? 2 : activeTab === 'saved' ? 3 : 1;
@@ -29,6 +32,12 @@ const App: React.FC = () => {
     getAllMCQs().then(setSavedMcqs).catch((err) => {
       console.error('Failed to load MCQs from IndexedDB', err);
     });
+  }, []);
+
+  useEffect(() => {
+    if (localStorage.getItem('onboardingSeen') !== '1') {
+      setRunTour(true);
+    }
   }, []);
 
   useEffect(() => {
@@ -119,13 +128,20 @@ const App: React.FC = () => {
     setSavedMcqs(prevMcqs => prevMcqs.filter(mcq => mcq.id !== mcqId));
   };
 
+  const handleTourClose = () => {
+    setRunTour(false);
+    localStorage.setItem('onboardingSeen', '1');
+  };
+
 
   return (
     <div className="min-h-screen bg-slate-50 font-sans text-slate-800">
+      <Tour run={runTour} onClose={handleTourClose} />
       <Header />
       <main className="container mx-auto px-4 py-8 max-w-4xl">
         <nav className="mb-6 border-b border-slate-200 flex space-x-2">
           <button
+            id="tour-generate-tab"
             className={`px-4 py-2 rounded-t shadow-sm ${
               activeTab === 'generate'
                 ? 'bg-white text-blue-600 font-semibold'
@@ -136,6 +152,7 @@ const App: React.FC = () => {
             {t('generateTab')}
           </button>
           <button
+            id="tour-saved-tab"
             className={`px-4 py-2 rounded-t shadow-sm ${
               activeTab === 'saved'
                 ? 'bg-white text-blue-600 font-semibold'
@@ -188,11 +205,15 @@ const App: React.FC = () => {
                   <LoadingOverlay />
                 )}
 
-                {apiState === APIState.Error && (
-                  <div className="mt-8 p-4 bg-red-100 border border-red-300 text-red-800 rounded-lg">
-                    <h3 className="font-bold">{t('error')}</h3>
-                    <p>{error}</p>
-                  </div>
+                {apiState === APIState.Error && error && (
+                  <ErrorOverlay
+                    message={error}
+                    onClose={() => {
+                      setApiState(APIState.Idle);
+                      setError(null);
+                      setQuestionCount(1);
+                    }}
+                  />
                 )}
               </>
             )}
