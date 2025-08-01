@@ -21,6 +21,8 @@ const App: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'generate' | 'saved'>('generate');
   const [success, setSuccess] = useState<string | null>(null);
   const [remainingGenerations, setRemainingGenerations] = useState(0);
+  const [questionCount, setQuestionCount] = useState(1);
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(1);
   const { t } = useLanguage();
 
   const currentStep = currentMcq ? 2 : activeTab === 'saved' ? 3 : 1;
@@ -43,10 +45,16 @@ const App: React.FC = () => {
       setError(t('pleaseEnterText'));
       return;
     }
+
+    if (count > 1) {
+      setQuestionCount(count);
+      setCurrentQuestionIndex(1);
+      setRemainingGenerations(count - 1);
+    }
+
     setApiState(APIState.Loading);
     setError(null);
     setCurrentMcq(null);
-    setRemainingGenerations(count - 1);
 
     try {
       const medical = await isMedicalContent(text);
@@ -54,10 +62,12 @@ const App: React.FC = () => {
         setError(t('nonMedicalError'));
         setApiState(APIState.Error);
         setRemainingGenerations(0);
+        setQuestionCount(1);
+        setCurrentQuestionIndex(1);
         return;
       }
 
-      const generatedMcq = await generateMCQFromText(text);
+      const generatedMcq = await generateMCQFromText(text, currentQuestionIndex, questionCount);
       setCurrentMcq(generatedMcq);
       setApiState(APIState.Success);
     } catch (err) {
@@ -66,8 +76,10 @@ const App: React.FC = () => {
       setError(`${t('failedGenerate')} ${errorMessage}`);
       setApiState(APIState.Error);
       setRemainingGenerations(0);
+      setQuestionCount(1);
+      setCurrentQuestionIndex(1);
     }
-  }, [t]);
+  }, [t, questionCount, currentQuestionIndex]);
 
   const handleSaveMCQ = (mcqToSave: MCQ) => {
     saveMCQ(mcqToSave).catch(err => console.error('Failed to save MCQ', err));
@@ -83,10 +95,13 @@ const App: React.FC = () => {
     });
     if (remainingGenerations > 0) {
       setRemainingGenerations(prev => prev - 1);
+      setCurrentQuestionIndex(prev => prev + 1);
       handleGenerateMCQ(inputText, 1);
     } else {
       setCurrentMcq(null);
       setApiState(APIState.Idle);
+      setQuestionCount(1);
+      setCurrentQuestionIndex(1);
     }
     setSuccess(t('saveSuccess'));
   };
@@ -96,6 +111,8 @@ const App: React.FC = () => {
     setApiState(APIState.Idle);
     setError(null);
     setRemainingGenerations(0);
+    setQuestionCount(1);
+    setCurrentQuestionIndex(1);
   };
 
   const handleEditMCQ = (mcqId: string) => {
@@ -159,6 +176,8 @@ const App: React.FC = () => {
               initialMcq={currentMcq}
               onSave={handleSaveMCQ}
               onCancel={handleCancelReview}
+              questionIndex={currentQuestionIndex}
+              totalQuestions={questionCount}
             />
           </div>
         ) : (

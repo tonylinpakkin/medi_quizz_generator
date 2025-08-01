@@ -9,9 +9,11 @@ interface MCQReviewCardProps {
   initialMcq: MCQ;
   onSave: (mcq: MCQ) => void;
   onCancel: () => void;
+  questionIndex: number;
+  totalQuestions: number;
 }
 
-export const MCQReviewCard: React.FC<MCQReviewCardProps> = ({ initialMcq, onSave, onCancel }) => {
+export const MCQReviewCard: React.FC<MCQReviewCardProps> = ({ initialMcq, onSave, onCancel, questionIndex, totalQuestions }) => {
   const [mcq, setMcq] = useState<MCQ>(initialMcq);
   const [selectedAnswer, setSelectedAnswer] = useState(mcq.correctAnswerId);
   const [highlightSave, setHighlightSave] = useState(true);
@@ -57,6 +59,9 @@ export const MCQReviewCard: React.FC<MCQReviewCardProps> = ({ initialMcq, onSave
           {t('editMode')}
         </span>
       </h3>
+      <p className="text-slate-600 text-sm mt-1">
+        {t('questionCountDisplay', { current: String(questionIndex), total: String(totalQuestions) })}
+      </p>
       <p className="text-slate-500 mb-2">{t('reviewDraft')}</p>
       <p className="text-slate-500 mb-4">{t('reviewInstruction')}</p>
       

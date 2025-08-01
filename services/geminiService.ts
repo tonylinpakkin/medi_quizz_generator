@@ -48,10 +48,10 @@ const mcqSchema = {
 };
 
 
-export const generateMCQFromText = async (text: string): Promise<MCQ> => {
+export const generateMCQFromText = async (text: string, current = 1, total = 1): Promise<MCQ> => {
     const prompt = `
         You are an expert medical question author for practicing physicians.
-        Based on the following text from a medical thesis, generate one single-best-answer multiple-choice question (MCQ).
+        Based on the following text from a medical thesis, generate question ${current} of ${total} as a single-best-answer multiple-choice question (MCQ).
         The question must be challenging, clinically relevant, and test a key concept from the provided text.
         Include a brief explanation for why the chosen answer is correct in a 'rationale' field.
         Your response MUST be a valid JSON object that strictly adheres to the provided schema.

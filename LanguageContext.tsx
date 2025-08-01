@@ -45,6 +45,7 @@ const translations: Record<Language, Record<string, string>> = {
     progressStep2: 'Step 2: Review Question',
     progressStep3: 'Step 3: Saved MCQs',
     chooseQuestionCount: 'Select number of questions',
+    questionCountDisplay: 'Question {current} of {total}',
   },
   'zh-Hant': {
     pasteParagraph: '1. \u8CBC\u4E0A\u6587\u5B57\u6216\u4E0A\u50B3\u6A94\u6848',
@@ -88,6 +89,7 @@ const translations: Record<Language, Record<string, string>> = {
     progressStep2: '\u6B65\u9A5F 2\uFF1A\u5BE9\u95B1\u4E26\u7DE8\u8F2F',
     progressStep3: '\u6B65\u9A5F 3\uFF1A\u67E5\u770B\u5DF2\u5132\u5B58',
     chooseQuestionCount: '\u9078\u64C7\u8981\u751F\u6210\u7684\u984C\u6578',
+    questionCountDisplay: '\u7B2C {current}/{total} \u984C',
   },
 };
 
