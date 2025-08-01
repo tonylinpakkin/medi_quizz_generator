@@ -1,5 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import type { MCQ } from '../types';
+(global as any).URL.createObjectURL = vi.fn();
+(global as any).URL.revokeObjectURL = vi.fn();
 
 vi.mock('docx', () => {
   return {

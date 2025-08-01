@@ -2,8 +2,13 @@
 import React from 'react';
 import { BrainCircuitIcon } from './icons';
 import { LanguageToggle } from './LanguageToggle';
+import { useLanguage } from '../LanguageContext';
 
-export const Header: React.FC = () => {
+interface HeaderProps {
+  onShowTour: () => void;
+}
+export const Header: React.FC<HeaderProps> = ({ onShowTour }) => {
+  const { t } = useLanguage();
   return (
     <header className="bg-white shadow-sm border-b border-slate-200">
       <div className="container mx-auto px-4 py-4 max-w-4xl flex items-center justify-between">
@@ -14,7 +19,15 @@ export const Header: React.FC = () => {
             <p className="text-sm text-slate-500">Generate exam questions from your research in seconds.</p>
           </div>
         </div>
-        <LanguageToggle />
+        <div className="flex items-center space-x-4">
+          <button
+            onClick={onShowTour}
+            className="text-sm text-blue-600 hover:underline"
+          >
+            {t('tour')}
+          </button>
+          <LanguageToggle />
+        </div>
       </div>
     </header>
   );

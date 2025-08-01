@@ -54,6 +54,9 @@ const translations: Record<Language, Record<string, string>> = {
     onboardStep2: 'Review the AI-generated questions and make edits.',
     onboardStep3: 'Save questions or export them to Word or PDF.',
     onboardGotIt: 'Got it!',
+    next: 'Next',
+    back: 'Back',
+    tour: 'Tour',
     close: 'Close',
   },
   'zh-Hant': {
@@ -107,6 +110,9 @@ const translations: Record<Language, Record<string, string>> = {
     onboardStep2: '\u6AA2\u8996 AI \u7522\u751F\u7684\u984C\u76EE\u4E26\u9032\u884C\u7DE8\u8F2F\u3002',
     onboardStep3: '\u5132\u5B58\u984C\u76EE\u6216\u532F\u51FA Word/PDF\u3002',
     onboardGotIt: '\u77E5\u9053\u4E86\uff01',
+    next: '\u4E0B\u4E00\u6B65',
+    back: '\u4E0A\u4E00\u6B65',
+    tour: '\u5C55\u793A',
     close: '\u95DC\u9589',
   },
 };
