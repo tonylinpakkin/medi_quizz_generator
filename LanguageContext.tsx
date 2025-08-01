@@ -5,7 +5,7 @@ export type Language = 'en' | 'zh-Hant';
 const translations: Record<Language, Record<string, string>> = {
   en: {
     pasteParagraph: '1. Paste Text or Upload a File',
-    provideParagraph: 'Paste a paragraph in the box or upload a PDF, Word or text file. The AI will use this context to create a question.',
+    provideParagraph: 'Paste a paragraph in the box or upload a PDF, Word or text file. The AI will use this context to create questions.',
     uploadFile: 'Upload document (PDF, Word, or text)',
     fileReadError: 'Failed to read file. Please try another document.',
     generating: 'Generating...',
