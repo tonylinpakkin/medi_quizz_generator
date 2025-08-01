@@ -17,13 +17,17 @@
     "docx": "^9.5.1",
     "idb": "^7.1.1",
     "jspdf": "^3.0.1",
-    "pdfjs-dist": "^3.11.174",
     "mammoth": "^1.4.25",
+    "pdfjs-dist": "^3.11.174",
     "react": "^19.1.0",
-    "react-dom": "^19.1.0"
+    "react-dom": "^19.1.0",
+    "react-joyride": "^2.9.3"
   },
   "devDependencies": {
+    "@testing-library/react": "^14.2.1",
+    "@testing-library/user-event": "^14.4.3",
     "@types/node": "^22.14.0",
+    "jsdom": "^22.1.0",
     "typescript": "~5.7.2",
     "vite": "^6.2.0",
     "vitest": "^3.2.4"

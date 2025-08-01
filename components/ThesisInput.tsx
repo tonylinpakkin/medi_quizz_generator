@@ -40,7 +40,7 @@ export const ThesisInput: React.FC<ThesisInputProps> = ({
   };
 
   return (
-    <div className="bg-white p-6 rounded-lg shadow-md border border-slate-200">
+    <div data-tour="thesis-input" className="bg-white p-6 rounded-lg shadow-md border border-slate-200">
       <h2 className="text-xl font-semibold text-slate-700 mb-2">{t('pasteParagraph')}</h2>
       <p className="text-slate-500 mb-4">{t('provideParagraph')}</p>
       <textarea

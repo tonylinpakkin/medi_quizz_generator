@@ -53,7 +53,7 @@ export const MCQReviewCard: React.FC<MCQReviewCardProps> = ({ initialMcq, onSave
   };
 
   return (
-    <div className="bg-white p-6 rounded-lg shadow-md border border-slate-200">
+    <div data-tour="mcq-review" className="bg-white p-6 rounded-lg shadow-md border border-slate-200">
       <div className="mb-2">
         <button
           onClick={onCancel}

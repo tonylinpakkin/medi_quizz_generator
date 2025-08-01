@@ -133,7 +133,7 @@ export const SavedMCQList: React.FC<SavedMCQListProps> = ({ mcqs, onEdit, onDele
   }
 
   return (
-    <div className="mt-12">
+    <div data-tour="saved-mcqs" className="mt-12">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-2xl font-bold text-slate-700">{t('savedQuestions')}</h2>
         <div className="space-x-3">

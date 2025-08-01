@@ -55,6 +55,8 @@ const translations: Record<Language, Record<string, string>> = {
     onboardStep3: 'Save questions or export them to Word or PDF.',
     onboardGotIt: 'Got it!',
     close: 'Close',
+    next: 'Next',
+    skip: 'Skip',
   },
   'zh-Hant': {
     pasteParagraph: '1. \u8CBC\u4E0A\u6587\u5B57\u6216\u4E0A\u50B3\u6A94\u6848',
@@ -108,6 +110,8 @@ const translations: Record<Language, Record<string, string>> = {
     onboardStep3: '\u5132\u5B58\u984C\u76EE\u6216\u532F\u51FA Word/PDF\u3002',
     onboardGotIt: '\u77E5\u9053\u4E86\uff01',
     close: '\u95DC\u9589',
+    next: '\u4E0B\u4E00\u6B65',
+    skip: '\u8DF3\u904E',
   },
 };
 

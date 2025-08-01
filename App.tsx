@@ -5,7 +5,7 @@ import { ThesisInput } from './components/ThesisInput';
 import { MCQReviewCard } from './components/MCQReviewCard';
 import { SavedMCQList } from './components/SavedMCQList';
 import { ProgressIndicator } from './components/ProgressIndicator';
-import OnboardingOverlay from './components/OnboardingOverlay';
+import OnboardingTour from './components/OnboardingTour';
 import { generateMCQFromText } from './services/geminiService';
 import { isMedicalContent } from './services/medicalClassifier';
 import { getAllMCQs, saveMCQ, deleteMCQ as deleteMCQFromDb } from './services/mcqStorage';
@@ -136,9 +136,7 @@ const App: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-slate-50 font-sans text-slate-800">
-      {showOnboarding && (
-        <OnboardingOverlay onClose={handleDismissOnboarding} />
-      )}
+      <OnboardingTour run={showOnboarding} onFinish={handleDismissOnboarding} />
       <Header />
       <main className="container mx-auto px-4 py-8 max-w-4xl">
         <nav className="mb-6 border-b border-slate-200 flex space-x-2">
