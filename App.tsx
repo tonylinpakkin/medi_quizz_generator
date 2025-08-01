@@ -14,18 +14,16 @@ import { useLanguage } from './LanguageContext';
 
 const App: React.FC = () => {
   const [apiState, setApiState] = useState<APIState>(APIState.Idle);
-  const [currentMcq, setCurrentMcq] = useState<MCQ | null>(null);
+  const [currentMcqs, setCurrentMcqs] = useState<MCQ[]>([]);
   const [inputText, setInputText] = useState('');
   const [savedMcqs, setSavedMcqs] = useState<MCQ[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'generate' | 'saved'>('generate');
   const [success, setSuccess] = useState<string | null>(null);
-  const [remainingGenerations, setRemainingGenerations] = useState(0);
   const [questionCount, setQuestionCount] = useState(1);
-  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(1);
   const { t } = useLanguage();
 
-  const currentStep = currentMcq ? 2 : activeTab === 'saved' ? 3 : 1;
+  const currentStep = currentMcqs.length > 0 ? 2 : activeTab === 'saved' ? 3 : 1;
 
   useEffect(() => {
     getAllMCQs().then(setSavedMcqs).catch((err) => {
@@ -46,40 +44,37 @@ const App: React.FC = () => {
       return;
     }
 
-    if (count > 1) {
-      setQuestionCount(count);
-      setCurrentQuestionIndex(1);
-      setRemainingGenerations(count - 1);
-    }
-
     setApiState(APIState.Loading);
     setError(null);
-    setCurrentMcq(null);
+    setCurrentMcqs([]);
+    setQuestionCount(count);
 
     try {
       const medical = await isMedicalContent(text);
       if (!medical) {
         setError(t('nonMedicalError'));
         setApiState(APIState.Error);
-        setRemainingGenerations(0);
         setQuestionCount(1);
-        setCurrentQuestionIndex(1);
         return;
       }
 
-      const generatedMcq = await generateMCQFromText(text, currentQuestionIndex, questionCount);
-      setCurrentMcq(generatedMcq);
+      const generated: MCQ[] = [];
+      for (let i = 1; i <= count; i++) {
+        const mcq = await generateMCQFromText(text, i, count);
+        generated.push(mcq);
+        setCurrentMcqs([...generated]);
+      }
+
       setApiState(APIState.Success);
     } catch (err) {
       console.error(err);
-      const errorMessage = err instanceof Error ? err.message : "An unknown error occurred.";
+      const errorMessage = err instanceof Error ? err.message : 'An unknown error occurred.';
       setError(`${t('failedGenerate')} ${errorMessage}`);
       setApiState(APIState.Error);
-      setRemainingGenerations(0);
       setQuestionCount(1);
-      setCurrentQuestionIndex(1);
+      setCurrentMcqs([]);
     }
-  }, [t, questionCount, currentQuestionIndex]);
+  }, [t]);
 
   const handleSaveMCQ = (mcqToSave: MCQ) => {
     saveMCQ(mcqToSave).catch(err => console.error('Failed to save MCQ', err));
@@ -93,33 +88,29 @@ const App: React.FC = () => {
         return [...prevMcqs, mcqToSave];
       }
     });
-    if (remainingGenerations > 0) {
-      setRemainingGenerations(prev => prev - 1);
-      setCurrentQuestionIndex(prev => prev + 1);
-      handleGenerateMCQ(inputText, 1);
-    } else {
-      setCurrentMcq(null);
-      setApiState(APIState.Idle);
-      setQuestionCount(1);
-      setCurrentQuestionIndex(1);
-    }
+    setCurrentMcqs(prev => {
+      const remaining = prev.filter(mcq => mcq.id !== mcqToSave.id);
+      if (remaining.length === 0) {
+        setApiState(APIState.Idle);
+        setQuestionCount(1);
+      }
+      return remaining;
+    });
     setSuccess(t('saveSuccess'));
   };
   
   const handleCancelReview = () => {
-    setCurrentMcq(null);
+    setCurrentMcqs([]);
     setApiState(APIState.Idle);
     setError(null);
-    setRemainingGenerations(0);
     setQuestionCount(1);
-    setCurrentQuestionIndex(1);
   };
 
   const handleEditMCQ = (mcqId: string) => {
     const mcqToEdit = savedMcqs.find(mcq => mcq.id === mcqId);
     if (mcqToEdit) {
-      setCurrentMcq(mcqToEdit);
-      setApiState(APIState.Success); 
+      setCurrentMcqs([mcqToEdit]);
+      setApiState(APIState.Success);
     }
   };
   
@@ -169,16 +160,18 @@ const App: React.FC = () => {
           </div>
         )}
 
-        {currentMcq ? (
-          <div className="animate-fade-in">
-            <MCQReviewCard
-              key={currentMcq.id}
-              initialMcq={currentMcq}
-              onSave={handleSaveMCQ}
-              onCancel={handleCancelReview}
-              questionIndex={currentQuestionIndex}
-              totalQuestions={questionCount}
-            />
+        {currentMcqs.length > 0 ? (
+          <div className="space-y-6 animate-fade-in">
+            {currentMcqs.map((mcq, idx) => (
+              <MCQReviewCard
+                key={mcq.id}
+                initialMcq={mcq}
+                onSave={handleSaveMCQ}
+                onCancel={handleCancelReview}
+                questionIndex={idx + 1}
+                totalQuestions={questionCount}
+              />
+            ))}
           </div>
         ) : (
           <>
