@@ -11,6 +11,7 @@ import { isMedicalContent } from './services/medicalClassifier';
 import { getAllMCQs, saveMCQ, deleteMCQ as deleteMCQFromDb } from './services/mcqStorage';
 import { MCQ, APIState } from './types';
 import LoadingOverlay from './components/LoadingOverlay';
+import ErrorOverlay from './components/ErrorOverlay';
 import { useLanguage } from './LanguageContext';
 
 const App: React.FC = () => {
@@ -204,11 +205,15 @@ const App: React.FC = () => {
                   <LoadingOverlay />
                 )}
 
-                {apiState === APIState.Error && (
-                  <div className="mt-8 p-4 bg-red-100 border border-red-300 text-red-800 rounded-lg">
-                    <h3 className="font-bold">{t('error')}</h3>
-                    <p>{error}</p>
-                  </div>
+                {apiState === APIState.Error && error && (
+                  <ErrorOverlay
+                    message={error}
+                    onClose={() => {
+                      setApiState(APIState.Idle);
+                      setError(null);
+                      setQuestionCount(1);
+                    }}
+                  />
                 )}
               </>
             )}
