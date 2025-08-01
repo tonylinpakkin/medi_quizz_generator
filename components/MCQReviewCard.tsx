@@ -55,7 +55,7 @@ export const MCQReviewCard: React.FC<MCQReviewCardProps> = ({ initialMcq, onSave
       <h3 className="text-xl font-semibold text-slate-700 flex items-center">
         {t('reviewEdit')}
         <span className="ml-3 inline-flex items-center px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 text-xs font-medium">
-          <EditIcon className="w-3 h-3 mr-1" />
+          <EditIcon className="w-3 h-3 mr-1" title={t('edit')} />
           {t('editMode')}
         </span>
       </h3>
@@ -85,7 +85,7 @@ export const MCQReviewCard: React.FC<MCQReviewCardProps> = ({ initialMcq, onSave
               rows={3}
               className="mt-1 w-full p-2 bg-yellow-50 border-2 border-blue-400 text-slate-900 rounded-md focus:ring-2 focus:ring-blue-500 hover:cursor-pointer"
             />
-            <EditIcon className="w-4 h-4 absolute top-2 right-2 text-slate-400 opacity-0 group-hover:opacity-100 pointer-events-none" />
+            <EditIcon className="w-4 h-4 absolute top-2 right-2 text-slate-400 opacity-0 group-hover:opacity-100 pointer-events-none" title={t('edit')} />
           </div>
         </label>
 
@@ -109,7 +109,7 @@ export const MCQReviewCard: React.FC<MCQReviewCardProps> = ({ initialMcq, onSave
                         onChange={(e) => handleOptionChange(option.id, e.target.value)}
                         className="w-full p-2 bg-yellow-50 border-2 border-blue-400 text-slate-900 rounded-md focus:ring-2 focus:ring-blue-500 hover:cursor-pointer"
                     />
-                    <EditIcon className="w-4 h-4 absolute top-2 right-2 text-slate-400 opacity-0 group-hover:opacity-100 pointer-events-none" />
+                    <EditIcon className="w-4 h-4 absolute top-2 right-2 text-slate-400 opacity-0 group-hover:opacity-100 pointer-events-none" title={t('edit')} />
                 </div>
             </div>
             ))}
@@ -132,7 +132,7 @@ export const MCQReviewCard: React.FC<MCQReviewCardProps> = ({ initialMcq, onSave
               rows={3}
               className="mt-1 w-full p-2 bg-yellow-50 border-2 border-blue-400 text-slate-900 rounded-md focus:ring-2 focus:ring-blue-500 hover:cursor-pointer"
             />
-            <EditIcon className="w-4 h-4 absolute top-2 right-2 text-slate-400 opacity-0 group-hover:opacity-100 pointer-events-none" />
+            <EditIcon className="w-4 h-4 absolute top-2 right-2 text-slate-400 opacity-0 group-hover:opacity-100 pointer-events-none" title={t('edit')} />
           </div>
         </label>
       </div>
@@ -149,7 +149,7 @@ export const MCQReviewCard: React.FC<MCQReviewCardProps> = ({ initialMcq, onSave
               onClick={handleSave}
               className={`flex items-center justify-center px-6 py-2 bg-blue-600 text-white font-semibold rounded-md shadow-sm hover:bg-blue-700 transition-colors ${highlightSave ? 'animate-pulse' : ''}`}
           >
-              <SaveIcon className="w-5 h-5 mr-2" />
+              <SaveIcon className="w-5 h-5 mr-2" title={t('saveQuestion')} />
               {t('saveQuestion')}
           </button>
       </div>
