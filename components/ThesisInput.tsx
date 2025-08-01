@@ -1,13 +1,13 @@
 
 import React, { useState } from 'react';
-import { SparklesIcon } from './icons';
+import { SparklesIcon, ChevronDownIcon } from './icons';
 import { useLanguage } from '../LanguageContext';
 import { parseFile } from '../services/fileParser';
 
 interface ThesisInputProps {
   text: string;
   onTextChange: (text: string) => void;
-  onGenerate: (text: string) => void;
+  onGenerate: (text: string, count: number) => void;
   isLoading: boolean;
 }
 
@@ -18,10 +18,16 @@ export const ThesisInput: React.FC<ThesisInputProps> = ({
   isLoading,
 }) => {
   const [reading, setReading] = useState(false);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
   const { t } = useLanguage();
 
   const handleGenerateClick = () => {
-    onGenerate(text);
+    setDropdownOpen((open) => !open);
+  };
+
+  const handleGenerateSelect = (count: number) => {
+    setDropdownOpen(false);
+    onGenerate(text, count);
   };
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -61,15 +67,32 @@ export const ThesisInput: React.FC<ThesisInputProps> = ({
           className="block w-full text-sm text-slate-700 file:mr-4 file:px-4 file:py-2 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 disabled:opacity-50"
         />
       </div>
-      <div className="mt-4 flex justify-end">
+      <div className="mt-4 flex justify-end relative">
         <button
           onClick={handleGenerateClick}
           disabled={isLoading || reading || !text.trim()}
           className="flex items-center justify-center px-6 py-3 bg-blue-600 text-white font-semibold rounded-md shadow-sm hover:bg-blue-700 disabled:bg-slate-400 disabled:cursor-not-allowed transition-colors duration-200"
         >
           <SparklesIcon className="w-5 h-5 mr-2" />
-          {isLoading ? t('generating') : t('generateMcq')}
+          <span className="mr-1">{isLoading ? t('generating') : t('generateMcq')}</span>
+          <ChevronDownIcon className="w-4 h-4" />
         </button>
+        {dropdownOpen && !isLoading && !reading && (
+          <div className="absolute right-0 mt-2 w-32 bg-white border border-slate-200 rounded-md shadow-lg z-10">
+            <div className="px-4 py-2 text-sm text-slate-500 border-b border-slate-200">
+              {t('chooseQuestionCount')}
+            </div>
+            {[1, 2, 3, 4, 5].map((num) => (
+              <button
+                key={num}
+                onClick={() => handleGenerateSelect(num)}
+                className="block w-full text-left px-4 py-2 text-slate-700 hover:bg-slate-100"
+              >
+                {num}
+              </button>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
