@@ -59,7 +59,7 @@ export const MCQReviewCard: React.FC<MCQReviewCardProps> = ({ initialMcq, onSave
           {t('editMode')}
         </span>
       </h3>
-      <p className="text-slate-600 text-sm mt-1">
+      <p className="text-slate-600 text-lg font-semibold mt-1">
         {t('questionCountDisplay', { current: String(questionIndex), total: String(totalQuestions) })}
       </p>
       <p className="text-slate-500 mb-2">{t('reviewDraft')}</p>
