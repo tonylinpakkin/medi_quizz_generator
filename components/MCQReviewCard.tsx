@@ -2,7 +2,8 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import type { MCQ } from '../types';
 import { detectBias } from '../services/biasDetector';
-import { AlertTriangleIcon, SaveIcon, FileTextIcon, EditIcon } from './icons';
+import { AlertTriangleIcon, SaveIcon, FileTextIcon, EditIcon, ClipboardIcon } from './icons';
+import { mcqToPlainText } from '../services/mcqFormatter';
 import { useLanguage } from '../LanguageContext';
 
 interface MCQReviewCardProps {
@@ -17,6 +18,7 @@ export const MCQReviewCard: React.FC<MCQReviewCardProps> = ({ initialMcq, onSave
   const [mcq, setMcq] = useState<MCQ>(initialMcq);
   const [selectedAnswer, setSelectedAnswer] = useState(mcq.correctAnswerId);
   const [highlightSave, setHighlightSave] = useState(true);
+  const [copied, setCopied] = useState(false);
   const { t } = useLanguage();
 
   const biasWarnings = useMemo(() => {
@@ -34,6 +36,16 @@ export const MCQReviewCard: React.FC<MCQReviewCardProps> = ({ initialMcq, onSave
       opt.id === optionId ? { ...opt, text: newText } : opt
     );
     setMcq({ ...mcq, options: newOptions });
+  };
+
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(mcqToPlainText(mcq));
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      // ignore copy errors
+    }
   };
   
   const handleSave = () => {
@@ -144,6 +156,14 @@ export const MCQReviewCard: React.FC<MCQReviewCardProps> = ({ initialMcq, onSave
             className="px-6 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-md hover:bg-slate-100 transition-colors"
           >
             {t('cancel')}
+          </button>
+          <button
+            onClick={handleCopy}
+            type="button"
+            className="flex items-center px-6 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-md hover:bg-slate-100 transition-colors"
+          >
+            <ClipboardIcon className="w-5 h-5 mr-2" />
+            {copied ? t('copied') : t('copy')}
           </button>
           <button
               onClick={handleSave}
