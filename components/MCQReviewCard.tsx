@@ -234,5 +234,6 @@ export const MCQReviewCard: React.FC<MCQReviewCardProps> = ({ initialMcq, onUpda
         )}
       </div>
     </div>
+    </div>
   );
 };
