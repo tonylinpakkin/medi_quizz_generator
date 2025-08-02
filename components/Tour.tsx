@@ -12,11 +12,6 @@ export const Tour: React.FC<TourProps> = ({ run, onClose }) => {
 
   const steps: Step[] = [
     {
-      target: '#tour-header',
-      content: t('tourHeader'),
-      placement: 'bottom',
-    },
-    {
       target: '#tour-thesis-input',
       content: t('tourThesisInput'),
       placement: 'bottom',

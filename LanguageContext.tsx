@@ -57,7 +57,6 @@ const translations: Record<Language, Record<string, string>> = {
     questionCountDisplay: 'Question {current} of {total}',
     selectAll: 'Select All',
     close: 'Close',
-    tourHeader: 'This is the header. You can find the title of the application here.',
     tourThesisInput: 'Paste your text here. The AI will use this to generate questions.',
     tourFileUpload: 'Alternatively, you can upload a document.',
     tourQuestionCount: 'You can choose the number of questions to generate.',
