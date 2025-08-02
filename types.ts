@@ -1,5 +1,5 @@
 
-export interface MCQOption {
+export interface QuestionOption {
   id: string;
   text: string;
 }
@@ -8,14 +8,24 @@ export interface Citation {
   source: string;
 }
 
-export interface MCQ {
+export enum QuestionType {
+  MultipleChoice = 'MultipleChoice',
+  TrueFalse = 'TrueFalse',
+  ShortAnswer = 'ShortAnswer',
+}
+
+export interface Question {
   id: string;
   stem: string;
-  options: MCQOption[];
-  correctAnswerId: string;
+  options?: QuestionOption[];
+  /** For MultipleChoice/TrueFalse questions, this is the id of the correct option */
+  correctAnswerId?: string;
+  /** For ShortAnswer (string) or TrueFalse (boolean) responses */
+  answer?: string | boolean;
   /** Explanation for why the correct answer is best */
   rationale: string;
   citation: Citation;
+  type?: QuestionType;
 }
 
 export enum APIState {

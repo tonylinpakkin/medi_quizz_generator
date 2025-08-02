@@ -1,39 +1,42 @@
 
 import React, { useMemo, useState } from 'react';
-import type { MCQ } from '../types';
+import type { Question } from '../types';
+import { QuestionType } from '../types';
 import { detectBias } from '../services/biasDetector';
 import { EditIcon, TrashIcon, SaveIcon, FileTextIcon, CheckCircleIcon, AlertTriangleIcon, ClipboardIcon } from './icons';
-import { mcqToPlainText } from '../services/mcqFormatter';
-import { exportMCQsToWord, exportMCQsToPDF } from '../services/exportService';
+import { questionToPlainText } from '../services/questionFormatter';
+import { exportQuestionsToWord, exportQuestionsToPDF } from '../services/exportService';
 import { useLanguage } from '../LanguageContext';
 import { useToast } from '../ToastContext';
 import { PlusCircleIcon } from './icons';
 import { BiasHighlightedText } from './BiasHighlightedText';
 
 
-interface SavedMCQItemProps {
-  mcq: MCQ;
-  onUpdate: (mcq: MCQ) => void;
+interface SavedQuestionItemProps {
+  question: Question;
+  onUpdate: (question: Question) => void;
   onDelete: (id:string) => void;
   isSelected: boolean;
   onSelectionChange: (id: string, isSelected: boolean) => void;
 }
 
-const SavedMCQItem: React.FC<SavedMCQItemProps> = ({ mcq, onUpdate, onDelete, isSelected, onSelectionChange }) => {
+const SavedQuestionItem: React.FC<SavedQuestionItemProps> = ({ question, onUpdate, onDelete, isSelected, onSelectionChange }) => {
   const { t } = useLanguage();
   const { addToast } = useToast();
   const [isEditing, setIsEditing] = useState(false);
-  const [editedMcq, setEditedMcq] = useState<MCQ>(mcq);
+  const [editedQuestion, setEditedQuestion] = useState<Question>(question);
 
   const biasWarnings = useMemo(() => {
-    const allText = [mcq.stem, ...mcq.options.map(o => o.text)].join(' ');
+    const optionTexts = question.options?.map(o => o.text) ?? [];
+    const answerText = typeof question.answer === 'string' ? question.answer : '';
+    const allText = [question.stem, ...optionTexts, answerText].join(' ');
     return detectBias(allText);
-  }, [mcq]);
+  }, [question]);
   const flaggedWordsSet = useMemo(() => new Set(biasWarnings), [biasWarnings]);
 
   const handleCopy = async () => {
     try {
-      await navigator.clipboard.writeText(mcqToPlainText(mcq));
+      await navigator.clipboard.writeText(questionToPlainText(question));
       addToast(t('copySuccess'), 'info');
     } catch {
       addToast(t('copyFail'), 'error');
@@ -46,7 +49,7 @@ const SavedMCQItem: React.FC<SavedMCQItemProps> = ({ mcq, onUpdate, onDelete, is
         <input
           type="checkbox"
           checked={isSelected}
-          onChange={(e) => onSelectionChange(mcq.id, e.target.checked)}
+          onChange={(e) => onSelectionChange(question.id, e.target.checked)}
           className="h-5 w-5 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
         />
       </div>
@@ -62,70 +65,85 @@ const SavedMCQItem: React.FC<SavedMCQItemProps> = ({ mcq, onUpdate, onDelete, is
       
       {isEditing ? (
         <textarea
-          value={editedMcq.stem}
-          onChange={(e) => setEditedMcq({ ...editedMcq, stem: e.target.value })}
+          value={editedQuestion.stem}
+          onChange={(e) => setEditedQuestion({ ...editedQuestion, stem: e.target.value })}
           rows={3}
           className="mt-1 w-full p-2 bg-yellow-50 border-2 border-blue-400 text-slate-900 rounded-md focus:ring-2 focus:ring-blue-500"
         />
       ) : (
         <p className="font-semibold text-slate-700">
-          <BiasHighlightedText text={mcq.stem} flaggedWords={flaggedWordsSet} />
+          <BiasHighlightedText text={question.stem} flaggedWords={flaggedWordsSet} />
         </p>
       )}
 
-      <ul className="space-y-2">
-        {isEditing ? (
-          editedMcq.options.map(option => (
-            <li key={option.id} className="flex items-center space-x-3">
-              <input
-                type="radio"
-                name={`correctAnswer-${mcq.id}`}
-                value={option.id}
-                checked={editedMcq.correctAnswerId === option.id}
-                onChange={(e) => setEditedMcq({ ...editedMcq, correctAnswerId: e.target.value })}
-                className="h-5 w-5 text-blue-600 focus:ring-blue-500 border-slate-300"
-              />
-              <input
-                type="text"
-                value={option.text}
-                onChange={(e) => {
-                  const newOptions = editedMcq.options.map(o => o.id === option.id ? { ...o, text: e.target.value } : o);
-                  setEditedMcq({ ...editedMcq, options: newOptions });
-                }}
-                className="w-full p-2 bg-yellow-50 border-2 border-blue-400 text-slate-900 rounded-md focus:ring-2 focus:ring-blue-500"
-              />
-            </li>
-          ))
-        ) : (
-          mcq.options.map(option => (
-            <li key={option.id} className={`flex items-start p-2 rounded-md ${option.id === mcq.correctAnswerId ? 'bg-green-50' : 'bg-slate-50'}`}>
-              <span className={`font-mono mr-3 text-sm ${option.id === mcq.correctAnswerId ? 'text-green-700 font-bold' : 'text-slate-500'}`}>{option.id}.</span>
-              <span className={option.id === mcq.correctAnswerId ? 'text-green-900' : 'text-slate-800'}>
-                <BiasHighlightedText text={option.text} flaggedWords={flaggedWordsSet} />
-              </span>
-              {option.id === mcq.correctAnswerId && <CheckCircleIcon className="w-5 h-5 ml-auto text-green-600 flex-shrink-0" />}
-            </li>
-          ))
-        )}
-      </ul>
+      {question.type === QuestionType.ShortAnswer ? (
+        <div>
+          {isEditing ? (
+            <input
+              type="text"
+              value={editedQuestion.answer as string}
+              onChange={(e) => setEditedQuestion({ ...editedQuestion, answer: e.target.value })}
+              className="w-full p-2 bg-yellow-50 border-2 border-blue-400 text-slate-900 rounded-md focus:ring-2 focus:ring-blue-500"
+            />
+          ) : (
+            <p className="p-2 bg-slate-50 text-slate-800 rounded-md border border-slate-200">{question.answer as string}</p>
+          )}
+        </div>
+      ) : (
+        <ul className="space-y-2">
+          {isEditing ? (
+            editedQuestion.options?.map(option => (
+              <li key={option.id} className="flex items-center space-x-3">
+                <input
+                  type="radio"
+                  name={`correctAnswer-${question.id}`}
+                  value={option.id}
+                  checked={editedQuestion.correctAnswerId === option.id}
+                  onChange={(e) => setEditedQuestion({ ...editedQuestion, correctAnswerId: e.target.value })}
+                  className="h-5 w-5 text-blue-600 focus:ring-blue-500 border-slate-300"
+                />
+                <input
+                  type="text"
+                  value={option.text}
+                  onChange={(e) => {
+                    const newOptions = editedQuestion.options!.map(o => o.id === option.id ? { ...o, text: e.target.value } : o);
+                    setEditedQuestion({ ...editedQuestion, options: newOptions });
+                  }}
+                  className="w-full p-2 bg-yellow-50 border-2 border-blue-400 text-slate-900 rounded-md focus:ring-2 focus:ring-blue-500"
+                />
+              </li>
+            ))
+          ) : (
+            question.options?.map(option => (
+              <li key={option.id} className={`flex items-start p-2 rounded-md ${option.id === question.correctAnswerId ? 'bg-green-50' : 'bg-slate-50'}`}>
+                <span className={`font-mono mr-3 text-sm ${option.id === question.correctAnswerId ? 'text-green-700 font-bold' : 'text-slate-500'}`}>{option.id}.</span>
+                <span className={option.id === question.correctAnswerId ? 'text-green-900' : 'text-slate-800'}>
+                  <BiasHighlightedText text={option.text} flaggedWords={flaggedWordsSet} />
+                </span>
+                {option.id === question.correctAnswerId && <CheckCircleIcon className="w-5 h-5 ml-auto text-green-600 flex-shrink-0" />}
+              </li>
+            ))
+          )}
+        </ul>
+      )}
 
       <div className="pt-2">
         <div className="flex items-center space-x-2 text-sm text-slate-500 bg-slate-100 p-2 rounded-md">
             <FileTextIcon className="w-4 h-4 text-slate-400"/>
-            <span>{mcq.citation.source}</span>
+            <span>{question.citation.source}</span>
         </div>
       </div>
 
       {isEditing ? (
         <textarea
-          value={editedMcq.rationale}
-          onChange={(e) => setEditedMcq({ ...editedMcq, rationale: e.target.value })}
+          value={editedQuestion.rationale}
+          onChange={(e) => setEditedQuestion({ ...editedQuestion, rationale: e.target.value })}
           rows={3}
           className="mt-1 w-full p-2 bg-yellow-50 border-2 border-blue-400 text-slate-900 rounded-md focus:ring-2 focus:ring-blue-500"
         />
       ) : (
-        mcq.rationale && (
-          <p className="text-sm text-slate-600 pt-2">{mcq.rationale}</p>
+        question.rationale && (
+          <p className="text-sm text-slate-600 pt-2">{question.rationale}</p>
         )
       )}
       
@@ -134,12 +152,12 @@ const SavedMCQItem: React.FC<SavedMCQItemProps> = ({ mcq, onUpdate, onDelete, is
           <>
             <button onClick={() => {
               setIsEditing(false);
-              setEditedMcq(mcq);
+              setEditedQuestion(question);
             }} className="flex items-center px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-md hover:bg-slate-100 transition-colors">
               {t('cancel')}
             </button>
             <button onClick={() => {
-              onUpdate(editedMcq);
+              onUpdate(editedQuestion);
               setIsEditing(false);
             }} className="flex items-center px-4 py-2 text-sm font-medium text-blue-600 bg-blue-50 border border-blue-200 rounded-md hover:bg-blue-100 transition-colors">
               <SaveIcon className="w-4 h-4 mr-2" />
@@ -156,7 +174,7 @@ const SavedMCQItem: React.FC<SavedMCQItemProps> = ({ mcq, onUpdate, onDelete, is
               <EditIcon className="w-4 h-4 mr-2" />
               {t('edit')}
             </button>
-            <button onClick={() => onDelete(mcq.id)} className="flex items-center px-4 py-2 text-sm font-medium text-red-700 bg-red-50 border border-red-200 rounded-md hover:bg-red-100 transition-colors">
+            <button onClick={() => onDelete(question.id)} className="flex items-center px-4 py-2 text-sm font-medium text-red-700 bg-red-50 border border-red-200 rounded-md hover:bg-red-100 transition-colors">
               <TrashIcon className="w-4 h-4 mr-2" />
               {t('delete')}
             </button>
@@ -167,19 +185,19 @@ const SavedMCQItem: React.FC<SavedMCQItemProps> = ({ mcq, onUpdate, onDelete, is
   );
 };
 
-interface SavedMCQListProps {
-  mcqs: MCQ[];
-  onUpdate: (mcq: MCQ) => void;
+interface SavedQuestionListProps {
+  questions: Question[];
+  onUpdate: (question: Question) => void;
   onDelete: (id: string) => void;
   onDeleteSelected: (ids: string[]) => void;
   onSwitchToGenerateTab: () => void;
 }
 
-export const SavedMCQList: React.FC<SavedMCQListProps> = ({ mcqs, onUpdate, onDelete, onDeleteSelected, onSwitchToGenerateTab }) => {
+export const SavedQuestionList: React.FC<SavedQuestionListProps> = ({ questions, onUpdate, onDelete, onDeleteSelected, onSwitchToGenerateTab }) => {
   const { t } = useLanguage();
-  const [selectedMcqIds, setSelectedMcqIds] = useState(new Set<string>());
+  const [selectedQuestionIds, setSelectedQuestionIds] = useState(new Set<string>());
 
-  if (mcqs.length === 0) {
+  if (questions.length === 0) {
     return (
       <div className="text-center py-16 px-6 bg-white rounded-lg shadow-md border border-slate-200">
         <PlusCircleIcon className="mx-auto h-12 w-12 text-slate-400" />
@@ -191,7 +209,7 @@ export const SavedMCQList: React.FC<SavedMCQListProps> = ({ mcqs, onUpdate, onDe
             onClick={onSwitchToGenerateTab}
             className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
           >
-            {t('generateYourFirstMCQ')}
+            {t('generateYourFirstQuestion')}
           </button>
         </div>
       </div>
@@ -199,7 +217,7 @@ export const SavedMCQList: React.FC<SavedMCQListProps> = ({ mcqs, onUpdate, onDe
   }
 
   const handleSelectionChange = (id: string, isSelected: boolean) => {
-    setSelectedMcqIds(prev => {
+    setSelectedQuestionIds(prev => {
       const newSet = new Set(prev);
       if (isSelected) {
         newSet.add(id);
@@ -212,14 +230,14 @@ export const SavedMCQList: React.FC<SavedMCQListProps> = ({ mcqs, onUpdate, onDe
 
   const handleSelectAll = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.checked) {
-      setSelectedMcqIds(new Set(mcqs.map(mcq => mcq.id)));
+      setSelectedQuestionIds(new Set(questions.map(question => question.id)));
     } else {
-      setSelectedMcqIds(new Set());
+      setSelectedQuestionIds(new Set());
     }
   };
 
-  const selectedMcqs = mcqs.filter(mcq => selectedMcqIds.has(mcq.id));
-  const allSelected = selectedMcqIds.size === mcqs.length && mcqs.length > 0;
+  const selectedQuestions = questions.filter(question => selectedQuestionIds.has(question.id));
+  const allSelected = selectedQuestionIds.size === questions.length && questions.length > 0;
 
   return (
     <div className="mt-12">
@@ -227,25 +245,25 @@ export const SavedMCQList: React.FC<SavedMCQListProps> = ({ mcqs, onUpdate, onDe
         <h2 className="text-2xl font-bold text-slate-700">{t('savedQuestions')}</h2>
         <div className="space-x-3">
           <button
-            onClick={() => exportMCQsToWord(selectedMcqs)}
-            disabled={selectedMcqs.length === 0}
+            onClick={() => exportQuestionsToWord(selectedQuestions)}
+            disabled={selectedQuestions.length === 0}
             className="px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-md hover:bg-slate-100 disabled:opacity-50"
           >
             {t('exportWord')}
           </button>
           <button
-            onClick={() => exportMCQsToPDF(selectedMcqs)}
-            disabled={selectedMcqs.length === 0}
+            onClick={() => exportQuestionsToPDF(selectedQuestions)}
+            disabled={selectedQuestions.length === 0}
             className="px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-md hover:bg-slate-100 disabled:opacity-50"
           >
             {t('exportPDF')}
           </button>
           <button
             onClick={() => {
-              onDeleteSelected(Array.from(selectedMcqIds));
-              setSelectedMcqIds(new Set());
+              onDeleteSelected(Array.from(selectedQuestionIds));
+              setSelectedQuestionIds(new Set());
             }}
-            disabled={selectedMcqs.length === 0}
+            disabled={selectedQuestions.length === 0}
             className="px-4 py-2 text-sm font-medium text-red-700 bg-red-50 border border-red-200 rounded-md hover:bg-red-100 disabled:opacity-50"
           >
             {t('delete')}
@@ -264,13 +282,13 @@ export const SavedMCQList: React.FC<SavedMCQListProps> = ({ mcqs, onUpdate, onDe
         </label>
       </div>
       <ul className="space-y-6">
-        {mcqs.map(mcq => (
-          <SavedMCQItem
-            key={mcq.id}
-            mcq={mcq}
+        {questions.map(question => (
+          <SavedQuestionItem
+            key={question.id}
+            question={question}
             onUpdate={onUpdate}
             onDelete={onDelete}
-            isSelected={selectedMcqIds.has(mcq.id)}
+            isSelected={selectedQuestionIds.has(question.id)}
             onSelectionChange={handleSelectionChange}
           />
         ))}

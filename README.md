@@ -18,7 +18,7 @@ This contains everything you need to run your app locally.
 
 The generator verifies that your input relates to medicine. If the text is not medical, an error is displayed and no question is produced.
 
-You can now paste text **or upload PDF, Word and text files** in the Generate MCQ tab. Uploaded documents are parsed in the browser and their content is placed in the text area for review before generating questions.
+You can now paste text **or upload PDF, Word and text files** in the Generate Question tab. Uploaded documents are parsed in the browser and their content is placed in the text area for review before generating questions.
 
 ## Run Tests
 
@@ -30,7 +30,7 @@ npm test
 
 The test suite mocks the Gemini API so it does not require a real API key or network access.
 
-## Export Saved MCQs
+## Export Saved Questions
 
-In the **Saved MCQs** tab you can now export all questions to Word or PDF files.  
+In the **Saved Questions** tab you can now export all questions to Word or PDF files.
 Click **Export Word** or **Export PDF** to download the document.

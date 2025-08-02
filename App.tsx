@@ -2,13 +2,13 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { Header } from './components/Header';
 import { ThesisInput } from './components/ThesisInput';
-import { MCQReviewCard } from './components/MCQReviewCard';
-import { SavedMCQList } from './components/SavedMCQList';
+import { QuestionReviewCard } from './components/QuestionReviewCard';
+import { SavedQuestionList } from './components/SavedQuestionList';
 import { Tour } from './components/Tour';
-import { generateMCQFromText } from './services/geminiService';
+import { generateQuestionFromText } from './services/geminiService';
 import { isMedicalContent } from './services/medicalClassifier';
-import { getAllMCQs, saveMCQ, deleteMCQ as deleteMCQFromDb } from './services/mcqStorage';
-import { MCQ, APIState } from './types';
+import { getAllQuestions, saveQuestion, deleteQuestion as deleteQuestionFromDb } from './services/questionStorage';
+import { Question, APIState, QuestionType } from './types';
 import LoadingOverlay from './components/LoadingOverlay';
 import ErrorOverlay from './components/ErrorOverlay';
 import { ToastProvider, useToast } from './ToastContext';
@@ -17,18 +17,19 @@ import { useLanguage } from './LanguageContext';
 const AppContent: React.FC = () => {
   const { addToast } = useToast();
   const [apiState, setApiState] = useState<APIState>(APIState.Idle);
-  const [currentMcqs, setCurrentMcqs] = useState<MCQ[]>([]);
+  const [currentQuestions, setCurrentQuestions] = useState<Question[]>([]);
   const [inputText, setInputText] = useState('');
-  const [savedMcqs, setSavedMcqs] = useState<MCQ[]>([]);
+  const [savedQuestions, setSavedQuestions] = useState<Question[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'generate' | 'saved'>('generate');
   const [questionCount, setQuestionCount] = useState(1);
+  const [questionType, setQuestionType] = useState<QuestionType>(QuestionType.MultipleChoice);
   const [runTour, setRunTour] = useState(false);
   const { t } = useLanguage();
 
   useEffect(() => {
-    getAllMCQs().then(setSavedMcqs).catch((err) => {
-      console.error('Failed to load MCQs from IndexedDB', err);
+    getAllQuestions().then(setSavedQuestions).catch((err) => {
+      console.error('Failed to load questions from IndexedDB', err);
     });
   }, []);
 
@@ -38,7 +39,7 @@ const AppContent: React.FC = () => {
     }
   }, []);
 
-  const handleGenerateMCQ = useCallback(async (text: string, count = 1) => {
+  const handleGenerateQuestion = useCallback(async (text: string, count = 1) => {
     if (!text.trim()) {
       setError(t('pleaseEnterText'));
       return;
@@ -46,7 +47,7 @@ const AppContent: React.FC = () => {
 
     setApiState(APIState.Loading);
     setError(null);
-    setCurrentMcqs([]);
+    setCurrentQuestions([]);
     setQuestionCount(count);
 
     try {
@@ -58,11 +59,11 @@ const AppContent: React.FC = () => {
         return;
       }
 
-      const generated: MCQ[] = [];
+      const generated: Question[] = [];
       for (let i = 1; i <= count; i++) {
-        const mcq = await generateMCQFromText(text, i, count);
-        generated.push(mcq);
-        setCurrentMcqs([...generated]);
+        const question = await generateQuestionFromText(text, questionType, i, count);
+        generated.push(question);
+        setCurrentQuestions([...generated]);
       }
 
       setApiState(APIState.Success);
@@ -72,70 +73,70 @@ const AppContent: React.FC = () => {
       setError(`${t('failedGenerate')} ${errorMessage}`);
       setApiState(APIState.Error);
       setQuestionCount(1);
-      setCurrentMcqs([]);
+      setCurrentQuestions([]);
     }
-  }, [t]);
+  }, [t, questionType]);
 
-  const handleUpdateCurrentMCQ = useCallback((updatedMcq: MCQ) => {
-    setCurrentMcqs(prev => prev.map(mcq => mcq.id === updatedMcq.id ? updatedMcq : mcq));
+  const handleUpdateCurrentQuestion = useCallback((updatedQuestion: Question) => {
+    setCurrentQuestions(prev => prev.map(question => question.id === updatedQuestion.id ? updatedQuestion : question));
   }, []);
 
   const handleSaveAll = useCallback(async () => {
     try {
-      for (const mcq of currentMcqs) {
-        await saveMCQ(mcq);
+      for (const question of currentQuestions) {
+        await saveQuestion(question);
       }
-      setSavedMcqs(prev => [...prev, ...currentMcqs]);
-      setCurrentMcqs([]);
+      setSavedQuestions(prev => [...prev, ...currentQuestions]);
+      setCurrentQuestions([]);
       setApiState(APIState.Idle);
       setQuestionCount(1);
-      addToast(t('saveSuccessMultiple', { count: currentMcqs.length }), 'success');
+      addToast(t('saveSuccessMultiple', { count: currentQuestions.length }), 'success');
     } catch (err) {
-      console.error('Failed to save all MCQs', err);
+      console.error('Failed to save all questions', err);
       setError(t('failedSave'));
       setApiState(APIState.Error);
     }
-  }, [currentMcqs, t]);
+  }, [currentQuestions, t]);
   
   const handleDiscardAll = useCallback(() => {
-    setCurrentMcqs([]);
+    setCurrentQuestions([]);
     setApiState(APIState.Idle);
     setError(null);
     setQuestionCount(1);
   }, []);
 
-  const handleDiscardSingle = useCallback((mcqId: string) => {
-    setCurrentMcqs(prev => prev.filter(mcq => mcq.id !== mcqId));
+  const handleDiscardSingle = useCallback((questionId: string) => {
+    setCurrentQuestions(prev => prev.filter(question => question.id !== questionId));
   }, []);
 
-  const handleSaveSingle = useCallback(async (mcq: MCQ) => {
+  const handleSaveSingle = useCallback(async (question: Question) => {
     try {
-      await saveMCQ(mcq);
-      setSavedMcqs(prev => [...prev, mcq]);
-      setCurrentMcqs(prev => prev.filter(m => m.id !== mcq.id));
+      await saveQuestion(question);
+      setSavedQuestions(prev => [...prev, question]);
+      setCurrentQuestions(prev => prev.filter(m => m.id !== question.id));
       addToast(t('saveSuccess'), 'success');
     } catch (err) {
-      console.error('Failed to save MCQ', err);
+      console.error('Failed to save question', err);
       setError(t('failedSave'));
       setApiState(APIState.Error);
     }
   }, [addToast, t]);
 
-  const handleUpdateSavedMCQ = useCallback((updatedMcq: MCQ) => {
-    saveMCQ(updatedMcq).catch(err => console.error('Failed to update MCQ', err));
-    setSavedMcqs(prevMcqs => prevMcqs.map(mcq => mcq.id === updatedMcq.id ? updatedMcq : mcq));
+  const handleUpdateSavedQuestion = useCallback((updatedQuestion: Question) => {
+    saveQuestion(updatedQuestion).catch(err => console.error('Failed to update question', err));
+    setSavedQuestions(prevQuestions => prevQuestions.map(question => question.id === updatedQuestion.id ? updatedQuestion : question));
   }, []);
   
-  const handleDeleteMCQ = useCallback((mcqId: string) => {
-    deleteMCQFromDb(mcqId).catch(err => console.error('Failed to delete MCQ', err));
-    setSavedMcqs(prevMcqs => prevMcqs.filter(mcq => mcq.id !== mcqId));
+  const handleDeleteQuestion = useCallback((questionId: string) => {
+    deleteQuestionFromDb(questionId).catch(err => console.error('Failed to delete question', err));
+    setSavedQuestions(prevQuestions => prevQuestions.filter(question => question.id !== questionId));
   }, []);
 
-  const handleDeleteSelectedMCQs = useCallback((mcqIds: string[]) => {
-    mcqIds.forEach(mcqId => {
-      deleteMCQFromDb(mcqId).catch(err => console.error('Failed to delete MCQ', err));
+  const handleDeleteSelectedQuestions = useCallback((questionIds: string[]) => {
+    questionIds.forEach(questionId => {
+      deleteQuestionFromDb(questionId).catch(err => console.error('Failed to delete question', err));
     });
-    setSavedMcqs(prevMcqs => prevMcqs.filter(mcq => !mcqIds.includes(mcq.id)));
+    setSavedQuestions(prevQuestions => prevQuestions.filter(question => !questionIds.includes(question.id)));
   }, []);
 
   const handleTourClose = () => {
@@ -179,12 +180,14 @@ const AppContent: React.FC = () => {
             <ThesisInput
               text={inputText}
               onTextChange={setInputText}
-              onGenerate={handleGenerateMCQ}
+              onGenerate={handleGenerateQuestion}
               isLoading={apiState === APIState.Loading}
               onError={(fileError) => {
                 setError(fileError);
                 setApiState(APIState.Error);
               }}
+              questionType={questionType}
+              onQuestionTypeChange={setQuestionType}
             />
 
             {apiState === APIState.Loading && <LoadingOverlay />}
@@ -200,7 +203,7 @@ const AppContent: React.FC = () => {
               />
             )}
 
-            {currentMcqs.length > 0 && (
+            {currentQuestions.length > 0 && (
               <div className="mt-8 animate-fade-in">
                 <div className="flex justify-between items-center mb-4">
                   <h2 className="text-2xl font-bold text-slate-700">{t('reviewDraft')}</h2>
@@ -220,11 +223,11 @@ const AppContent: React.FC = () => {
                   </div>
                 </div>
                 <div className="space-y-6">
-                  {currentMcqs.map((mcq, idx) => (
-                    <MCQReviewCard
-                      key={mcq.id}
-                      initialMcq={mcq}
-                      onUpdate={handleUpdateCurrentMCQ}
+                  {currentQuestions.map((question, idx) => (
+                    <QuestionReviewCard
+                      key={question.id}
+                      initialQuestion={question}
+                      onUpdate={handleUpdateCurrentQuestion}
                       onDiscard={handleDiscardSingle}
                       onSave={handleSaveSingle}
                       questionIndex={idx + 1}
@@ -238,11 +241,11 @@ const AppContent: React.FC = () => {
         )}
 
         {activeTab === 'saved' && (
-          <SavedMCQList
-            mcqs={savedMcqs}
-            onUpdate={handleUpdateSavedMCQ}
-            onDelete={handleDeleteMCQ}
-            onDeleteSelected={handleDeleteSelectedMCQs}
+          <SavedQuestionList
+            questions={savedQuestions}
+            onUpdate={handleUpdateSavedQuestion}
+            onDelete={handleDeleteQuestion}
+            onDeleteSelected={handleDeleteSelectedQuestions}
             onSwitchToGenerateTab={() => setActiveTab('generate')}
           />
         )}
