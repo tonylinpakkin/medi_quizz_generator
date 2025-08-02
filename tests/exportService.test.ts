@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import type { MCQ } from '../types';
+import type { Question } from '../types';
 
 vi.mock('docx', () => {
   return {
@@ -30,10 +30,10 @@ vi.mock('jspdf', () => {
   };
 });
 
-import { exportMCQsToWord, exportMCQsToPDF } from '../services/exportService';
+import { exportQuestionsToWord, exportQuestionsToPDF } from '../services/exportService';
 import { jsPDF } from 'jspdf';
 
-const mcqs: MCQ[] = [
+const questions: Question[] = [
   {
     id: '1',
     stem: 'Stem',
@@ -56,25 +56,25 @@ beforeEach(() => {
 
 describe('exportService', () => {
   it('exports word without throwing', async () => {
-    await expect(exportMCQsToWord(mcqs)).resolves.not.toThrow();
+    await expect(exportQuestionsToWord(questions)).resolves.not.toThrow();
   });
 
   it('exports pdf without throwing', () => {
-    expect(() => exportMCQsToPDF(mcqs)).not.toThrow();
+    expect(() => exportQuestionsToPDF(questions)).not.toThrow();
   });
 
   it('adds a new page when height is exceeded', () => {
-    const longMcqs = [mcqs[0], { ...mcqs[0], id: '2' }];
+    const longQuestions = [questions[0], { ...questions[0], id: '2' }];
     (globalThis as any).window = {};
-    exportMCQsToPDF(longMcqs);
+    exportQuestionsToPDF(longQuestions);
     delete (globalThis as any).window;
     expect(lastInstance.addPage).toHaveBeenCalled();
   });
 
   it('wraps text when width is exceeded', () => {
-    const longMcq = { ...mcqs[0], stem: 'This is a very long stem that should exceed the page width and trigger wrapping in the PDF export function.' };
+    const longQuestion = { ...questions[0], stem: 'This is a very long stem that should exceed the page width and trigger wrapping in the PDF export function.' };
     (globalThis as any).window = {};
-    exportMCQsToPDF([longMcq]);
+    exportQuestionsToPDF([longQuestion]);
     delete (globalThis as any).window;
     expect(lastInstance.splitTextToSize).toHaveBeenCalled();
   });

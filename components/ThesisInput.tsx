@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { SparklesIcon } from './icons';
 import { useLanguage } from '../LanguageContext';
 import { parseFile } from '../services/fileParser';
+import { QuestionType } from '../types';
 
 interface ThesisInputProps {
   text: string;
@@ -10,6 +11,8 @@ interface ThesisInputProps {
   onGenerate: (text: string, count: number) => void;
   isLoading: boolean;
   onError: (message: string) => void;
+  questionType: QuestionType;
+  onQuestionTypeChange: (type: QuestionType) => void;
 }
 
 export const ThesisInput: React.FC<ThesisInputProps> = ({
@@ -18,6 +21,8 @@ export const ThesisInput: React.FC<ThesisInputProps> = ({
   onGenerate,
   isLoading,
   onError,
+  questionType,
+  onQuestionTypeChange,
 }) => {
   const [reading, setReading] = useState(false);
   const [questionCount, setQuestionCount] = useState(1);
@@ -80,6 +85,21 @@ export const ThesisInput: React.FC<ThesisInputProps> = ({
             className="ml-2 w-20 border border-slate-300 rounded-md p-1"
           />
         </label>
+        <label className="text-sm font-medium text-slate-700 flex items-center">
+          {t('questionType')}
+          <select
+            value={questionType}
+            onChange={(e) => onQuestionTypeChange(e.target.value as QuestionType)}
+            disabled={isLoading || reading}
+            className="ml-2 border border-slate-300 rounded-md p-1"
+          >
+            {Object.values(QuestionType).map((type) => (
+              <option key={type} value={type}>
+                {type}
+              </option>
+            ))}
+          </select>
+        </label>
         <button
           id="tour-generate-button"
           onClick={handleGenerateClick}
@@ -87,7 +107,7 @@ export const ThesisInput: React.FC<ThesisInputProps> = ({
           className="flex items-center justify-center px-6 py-3 bg-blue-600 text-white font-semibold rounded-md shadow-sm hover:bg-blue-700 disabled:bg-slate-400 disabled:cursor-not-allowed transition-colors duration-200"
         >
           <SparklesIcon className="w-5 h-5 mr-2" />
-          <span>{isLoading ? t('generating') : t('generateMcq')}</span>
+          <span>{isLoading ? t('generating') : t('generateQuestion')}</span>
         </button>
       </div>
     </div>

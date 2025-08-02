@@ -1,8 +1,8 @@
 import { describe, it, expect } from 'vitest';
-import { mcqToPlainText } from '../services/mcqFormatter';
-import type { MCQ } from '../types';
+import { questionToPlainText } from '../services/questionFormatter';
+import type { Question } from '../types';
 
-const mcq: MCQ = {
+const question: Question = {
   id: '1',
   stem: 'Stem',
   options: [
@@ -16,9 +16,9 @@ const mcq: MCQ = {
   citation: { source: 'PubMed' },
 };
 
-describe('mcqToPlainText', () => {
-  it('formats an MCQ into plain text', () => {
-    const text = mcqToPlainText(mcq);
+describe('questionToPlainText', () => {
+  it('formats a question into plain text', () => {
+    const text = questionToPlainText(question);
     expect(text).toContain('Stem');
     expect(text).toContain('A. Opt A');
     expect(text).toContain('Answer: A');

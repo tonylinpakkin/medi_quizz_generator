@@ -3,12 +3,12 @@ import React from 'react';
 import { vi, expect, describe, it } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom/vitest';
-import { MCQReviewCard } from '../components/MCQReviewCard';
+import { QuestionReviewCard } from '../components/QuestionReviewCard';
 import { LanguageProvider } from '../LanguageContext';
 import { ToastProvider } from '../ToastContext';
-import type { MCQ } from '../types';
+import type { Question } from '../types';
 
-const sampleMcq: MCQ = {
+const sampleQuestion: Question = {
   id: '1',
   stem: 'Sample question?',
   options: [
@@ -20,7 +20,7 @@ const sampleMcq: MCQ = {
   citation: { source: 'source' },
 };
 
-describe('MCQReviewCard', () => {
+describe('QuestionReviewCard', () => {
   it('calls onSave when Save Question button is clicked', () => {
     const onSave = vi.fn();
     const onUpdate = vi.fn();
@@ -29,8 +29,8 @@ describe('MCQReviewCard', () => {
     render(
       <LanguageProvider>
         <ToastProvider>
-          <MCQReviewCard
-            initialMcq={sampleMcq}
+          <QuestionReviewCard
+            initialQuestion={sampleQuestion}
             onUpdate={onUpdate}
             onDiscard={onDiscard}
             onSave={onSave}
@@ -44,7 +44,7 @@ describe('MCQReviewCard', () => {
     const saveButton = screen.getByRole('button', { name: /save question/i });
     fireEvent.click(saveButton);
 
-    expect(onSave).toHaveBeenCalledWith(sampleMcq);
+    expect(onSave).toHaveBeenCalledWith(sampleQuestion);
   });
 });
 
