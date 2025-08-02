@@ -194,10 +194,10 @@ export const MCQReviewCard: React.FC<MCQReviewCardProps> = ({ initialMcq, onUpda
               <>
                 <button
                   onClick={handleCancel}
-              className="flex items-center px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-md hover:bg-slate-100 transition-colors"
-            >
-              {t('cancel')}
-            </button>
+                  className="flex items-center px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-md hover:bg-slate-100 transition-colors"
+                >
+                  {t('cancel')}
+                </button>
             <button
               onClick={handleSave}
               className="flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700"
