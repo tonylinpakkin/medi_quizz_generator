@@ -8,6 +8,12 @@ export interface Citation {
   source: string;
 }
 
+export enum QuestionType {
+  MCQ = 'MCQ',
+  TrueFalse = 'TrueFalse',
+  ShortAnswer = 'ShortAnswer',
+}
+
 export interface MCQ {
   id: string;
   stem: string;
@@ -16,6 +22,7 @@ export interface MCQ {
   /** Explanation for why the correct answer is best */
   rationale: string;
   citation: Citation;
+  type?: QuestionType;
 }
 
 export enum APIState {

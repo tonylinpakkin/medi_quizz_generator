@@ -29,13 +29,14 @@ vi.mock('@google/genai', () => {
   };
 });
 
-import { generateMCQFromText } from '../services/geminiService';
+import { generateQuestionFromText } from '../services/geminiService';
+import { QuestionType } from '../types';
 
 const sampleText = 'Primary aldosteronism is the most common cause of secondary hypertension.';
 
-describe('generateMCQFromText', () => {
-  it('returns a valid MCQ object', async () => {
-    const mcq = await generateMCQFromText(sampleText);
+describe('generateQuestionFromText', () => {
+  it('returns a valid MCQ object for MCQ type', async () => {
+    const mcq = await generateQuestionFromText(sampleText, QuestionType.MCQ);
 
     expect(mcq.stem.length).toBeGreaterThan(0);
     expect(mcq.options).toHaveLength(4);
@@ -44,5 +45,16 @@ describe('generateMCQFromText', () => {
     expect(mcq.rationale.length).toBeGreaterThan(0);
     expect(mcq.citation.source).toBe('PubMed');
     expect(mcq.id).toBeDefined();
+    expect(mcq.type).toBe(QuestionType.MCQ);
+  });
+
+  it('tags the returned question with TrueFalse type', async () => {
+    const q = await generateQuestionFromText(sampleText, QuestionType.TrueFalse);
+    expect(q.type).toBe(QuestionType.TrueFalse);
+  });
+
+  it('tags the returned question with ShortAnswer type', async () => {
+    const q = await generateQuestionFromText(sampleText, QuestionType.ShortAnswer);
+    expect(q.type).toBe(QuestionType.ShortAnswer);
   });
 });

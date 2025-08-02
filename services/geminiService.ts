@@ -1,6 +1,6 @@
 
 import { GoogleGenAI, Type } from "@google/genai";
-import { MCQ } from '../types';
+import { MCQ, QuestionType } from '../types';
 
 if (!process.env.API_KEY) {
     throw new Error("API_KEY environment variable not set.");
@@ -48,7 +48,7 @@ const mcqSchema = {
 };
 
 
-export const generateMCQFromText = async (text: string, current = 1, total = 1): Promise<MCQ> => {
+const generateMCQFromText = async (text: string, current = 1, total = 1): Promise<MCQ> => {
     const prompt = `
         You are an expert medical question author for practicing physicians.
         Based on the following text from a medical thesis, generate question ${current} of ${total} as a single-best-answer multiple-choice question (MCQ).
@@ -89,4 +89,18 @@ export const generateMCQFromText = async (text: string, current = 1, total = 1):
         console.error("Gemini API call failed:", error);
         throw new Error("The AI model failed to generate a valid question. Please try again with a different text or check the console for details.");
     }
+};
+
+export const generateQuestionFromText = async (
+    text: string,
+    type: QuestionType,
+    current = 1,
+    total = 1
+): Promise<MCQ> => {
+    // Currently only MCQ generation is implemented. Return the generated
+    // MCQ while tagging it with the requested question type so that callers
+    // know which type was requested. Future implementations can branch on
+    // the type to generate different question formats.
+    const mcq = await generateMCQFromText(text, current, total);
+    return { ...mcq, type };
 };
