@@ -4,7 +4,6 @@ import { Header } from './components/Header';
 import { ThesisInput } from './components/ThesisInput';
 import { MCQReviewCard } from './components/MCQReviewCard';
 import { SavedMCQList } from './components/SavedMCQList';
-import { ProgressIndicator } from './components/ProgressIndicator';
 import { Tour } from './components/Tour';
 import { generateMCQFromText } from './services/geminiService';
 import { isMedicalContent } from './services/medicalClassifier';
