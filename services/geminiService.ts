@@ -47,6 +47,60 @@ const mcqSchema = {
     required: ["stem", "options", "correctAnswerId", "rationale", "citation"]
 };
 
+const trueFalseSchema = {
+    type: Type.OBJECT,
+    properties: {
+        stem: {
+            type: Type.STRING,
+            description: "The statement to be evaluated as true or false."
+        },
+        answer: {
+            type: Type.BOOLEAN,
+            description: "Whether the statement is true."
+        },
+        rationale: {
+            type: Type.STRING,
+            description: "A brief explanation for the correct answer."
+        },
+        citation: {
+            type: Type.OBJECT,
+            description: "A citation for the information used in the question.",
+            properties: {
+                source: { type: Type.STRING, description: "The source of the citation, which must be 'PubMed'." }
+            },
+            required: ["source"]
+        }
+    },
+    required: ["stem", "answer", "rationale", "citation"]
+};
+
+const shortAnswerSchema = {
+    type: Type.OBJECT,
+    properties: {
+        stem: {
+            type: Type.STRING,
+            description: "The short answer question prompt."
+        },
+        answer: {
+            type: Type.STRING,
+            description: "The correct short answer."
+        },
+        rationale: {
+            type: Type.STRING,
+            description: "A brief explanation for the answer."
+        },
+        citation: {
+            type: Type.OBJECT,
+            description: "A citation for the information used in the question.",
+            properties: {
+                source: { type: Type.STRING, description: "The source of the citation, which must be 'PubMed'." }
+            },
+            required: ["source"]
+        }
+    },
+    required: ["stem", "answer", "rationale", "citation"]
+};
+
 
 const generateMCQFromText = async (text: string, current = 1, total = 1): Promise<MCQ> => {
     const prompt = `
@@ -91,16 +145,105 @@ const generateMCQFromText = async (text: string, current = 1, total = 1): Promis
     }
 };
 
+const generateTrueFalseFromText = async (text: string, current = 1, total = 1): Promise<MCQ> => {
+    const prompt = `
+        You are an expert medical question author for practicing physicians.
+        Based on the following text from a medical thesis, generate question ${current} of ${total} as a true/false question.
+        The statement must be challenging, clinically relevant, and test a key concept from the provided text.
+        Include a brief explanation for why the answer is correct in a 'rationale' field.
+        Your response MUST be a valid JSON object that strictly adheres to the provided schema.
+        Do not include any markdown formatting, backticks, or the word 'json' in your response. Just the raw JSON object.
+
+        Thesis Text:
+        ---
+        ${text}
+        ---
+    `;
+
+    try {
+        const response = await ai.models.generateContent({
+            model: "gemini-2.5-flash",
+            contents: prompt,
+            config: {
+                responseMimeType: "application/json",
+                responseSchema: trueFalseSchema,
+                temperature: 0.5,
+            },
+        });
+
+        const jsonText = response.text.trim();
+        const parsedJson = JSON.parse(jsonText);
+
+        if (typeof parsedJson.answer !== 'boolean' || !parsedJson.stem || !parsedJson.rationale) {
+            throw new Error("AI response is missing required fields.");
+        }
+
+        const options = [
+            { id: 'A', text: 'True' },
+            { id: 'B', text: 'False' }
+        ];
+        const correctAnswerId = parsedJson.answer ? 'A' : 'B';
+
+        return { ...parsedJson, id: crypto.randomUUID(), options, correctAnswerId } as MCQ;
+    } catch (error) {
+        console.error("Gemini API call failed:", error);
+        throw new Error("The AI model failed to generate a valid question. Please try again with a different text or check the console for details.");
+    }
+};
+
+const generateShortAnswerFromText = async (text: string, current = 1, total = 1): Promise<MCQ> => {
+    const prompt = `
+        You are an expert medical question author for practicing physicians.
+        Based on the following text from a medical thesis, generate question ${current} of ${total} as a short-answer question.
+        The question must be challenging, clinically relevant, and test a key concept from the provided text.
+        Provide the correct short answer in an 'answer' field and a brief explanation in a 'rationale' field.
+        Your response MUST be a valid JSON object that strictly adheres to the provided schema.
+        Do not include any markdown formatting, backticks, or the word 'json' in your response. Just the raw JSON object.
+
+        Thesis Text:
+        ---
+        ${text}
+        ---
+    `;
+
+    try {
+        const response = await ai.models.generateContent({
+            model: "gemini-2.5-flash",
+            contents: prompt,
+            config: {
+                responseMimeType: "application/json",
+                responseSchema: shortAnswerSchema,
+                temperature: 0.5,
+            },
+        });
+
+        const jsonText = response.text.trim();
+        const parsedJson = JSON.parse(jsonText);
+
+        if (!parsedJson.stem || typeof parsedJson.answer !== 'string' || !parsedJson.rationale) {
+            throw new Error("AI response is missing required fields.");
+        }
+
+        return { ...parsedJson, id: crypto.randomUUID() } as MCQ;
+    } catch (error) {
+        console.error("Gemini API call failed:", error);
+        throw new Error("The AI model failed to generate a valid question. Please try again with a different text or check the console for details.");
+    }
+};
+
 export const generateQuestionFromText = async (
     text: string,
     type: QuestionType,
     current = 1,
     total = 1
 ): Promise<MCQ> => {
-    // Currently only MCQ generation is implemented. Return the generated
-    // MCQ while tagging it with the requested question type so that callers
-    // know which type was requested. Future implementations can branch on
-    // the type to generate different question formats.
-    const mcq = await generateMCQFromText(text, current, total);
-    return { ...mcq, type };
+    switch (type) {
+        case QuestionType.TrueFalse:
+            return { ...(await generateTrueFalseFromText(text, current, total)), type };
+        case QuestionType.ShortAnswer:
+            return { ...(await generateShortAnswerFromText(text, current, total)), type };
+        case QuestionType.MCQ:
+        default:
+            return { ...(await generateMCQFromText(text, current, total)), type: QuestionType.MCQ };
+    }
 };

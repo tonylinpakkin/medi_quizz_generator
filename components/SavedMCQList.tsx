@@ -1,6 +1,7 @@
 
 import React, { useMemo, useState } from 'react';
 import type { MCQ } from '../types';
+import { QuestionType } from '../types';
 import { detectBias } from '../services/biasDetector';
 import { EditIcon, TrashIcon, SaveIcon, FileTextIcon, CheckCircleIcon, AlertTriangleIcon, ClipboardIcon } from './icons';
 import { mcqToPlainText } from '../services/mcqFormatter';
@@ -26,7 +27,9 @@ const SavedMCQItem: React.FC<SavedMCQItemProps> = ({ mcq, onUpdate, onDelete, is
   const [editedMcq, setEditedMcq] = useState<MCQ>(mcq);
 
   const biasWarnings = useMemo(() => {
-    const allText = [mcq.stem, ...mcq.options.map(o => o.text)].join(' ');
+    const optionTexts = mcq.options?.map(o => o.text) ?? [];
+    const answerText = typeof mcq.answer === 'string' ? mcq.answer : '';
+    const allText = [mcq.stem, ...optionTexts, answerText].join(' ');
     return detectBias(allText);
   }, [mcq]);
   const flaggedWordsSet = useMemo(() => new Set(biasWarnings), [biasWarnings]);
@@ -73,41 +76,56 @@ const SavedMCQItem: React.FC<SavedMCQItemProps> = ({ mcq, onUpdate, onDelete, is
         </p>
       )}
 
-      <ul className="space-y-2">
-        {isEditing ? (
-          editedMcq.options.map(option => (
-            <li key={option.id} className="flex items-center space-x-3">
-              <input
-                type="radio"
-                name={`correctAnswer-${mcq.id}`}
-                value={option.id}
-                checked={editedMcq.correctAnswerId === option.id}
-                onChange={(e) => setEditedMcq({ ...editedMcq, correctAnswerId: e.target.value })}
-                className="h-5 w-5 text-blue-600 focus:ring-blue-500 border-slate-300"
-              />
-              <input
-                type="text"
-                value={option.text}
-                onChange={(e) => {
-                  const newOptions = editedMcq.options.map(o => o.id === option.id ? { ...o, text: e.target.value } : o);
-                  setEditedMcq({ ...editedMcq, options: newOptions });
-                }}
-                className="w-full p-2 bg-yellow-50 border-2 border-blue-400 text-slate-900 rounded-md focus:ring-2 focus:ring-blue-500"
-              />
-            </li>
-          ))
-        ) : (
-          mcq.options.map(option => (
-            <li key={option.id} className={`flex items-start p-2 rounded-md ${option.id === mcq.correctAnswerId ? 'bg-green-50' : 'bg-slate-50'}`}>
-              <span className={`font-mono mr-3 text-sm ${option.id === mcq.correctAnswerId ? 'text-green-700 font-bold' : 'text-slate-500'}`}>{option.id}.</span>
-              <span className={option.id === mcq.correctAnswerId ? 'text-green-900' : 'text-slate-800'}>
-                <BiasHighlightedText text={option.text} flaggedWords={flaggedWordsSet} />
-              </span>
-              {option.id === mcq.correctAnswerId && <CheckCircleIcon className="w-5 h-5 ml-auto text-green-600 flex-shrink-0" />}
-            </li>
-          ))
-        )}
-      </ul>
+      {mcq.type === QuestionType.ShortAnswer ? (
+        <div>
+          {isEditing ? (
+            <input
+              type="text"
+              value={editedMcq.answer as string}
+              onChange={(e) => setEditedMcq({ ...editedMcq, answer: e.target.value })}
+              className="w-full p-2 bg-yellow-50 border-2 border-blue-400 text-slate-900 rounded-md focus:ring-2 focus:ring-blue-500"
+            />
+          ) : (
+            <p className="p-2 bg-slate-50 text-slate-800 rounded-md border border-slate-200">{mcq.answer as string}</p>
+          )}
+        </div>
+      ) : (
+        <ul className="space-y-2">
+          {isEditing ? (
+            editedMcq.options?.map(option => (
+              <li key={option.id} className="flex items-center space-x-3">
+                <input
+                  type="radio"
+                  name={`correctAnswer-${mcq.id}`}
+                  value={option.id}
+                  checked={editedMcq.correctAnswerId === option.id}
+                  onChange={(e) => setEditedMcq({ ...editedMcq, correctAnswerId: e.target.value })}
+                  className="h-5 w-5 text-blue-600 focus:ring-blue-500 border-slate-300"
+                />
+                <input
+                  type="text"
+                  value={option.text}
+                  onChange={(e) => {
+                    const newOptions = editedMcq.options!.map(o => o.id === option.id ? { ...o, text: e.target.value } : o);
+                    setEditedMcq({ ...editedMcq, options: newOptions });
+                  }}
+                  className="w-full p-2 bg-yellow-50 border-2 border-blue-400 text-slate-900 rounded-md focus:ring-2 focus:ring-blue-500"
+                />
+              </li>
+            ))
+          ) : (
+            mcq.options?.map(option => (
+              <li key={option.id} className={`flex items-start p-2 rounded-md ${option.id === mcq.correctAnswerId ? 'bg-green-50' : 'bg-slate-50'}`}>
+                <span className={`font-mono mr-3 text-sm ${option.id === mcq.correctAnswerId ? 'text-green-700 font-bold' : 'text-slate-500'}`}>{option.id}.</span>
+                <span className={option.id === mcq.correctAnswerId ? 'text-green-900' : 'text-slate-800'}>
+                  <BiasHighlightedText text={option.text} flaggedWords={flaggedWordsSet} />
+                </span>
+                {option.id === mcq.correctAnswerId && <CheckCircleIcon className="w-5 h-5 ml-auto text-green-600 flex-shrink-0" />}
+              </li>
+            ))
+          )}
+        </ul>
+      )}
 
       <div className="pt-2">
         <div className="flex items-center space-x-2 text-sm text-slate-500 bg-slate-100 p-2 rounded-md">

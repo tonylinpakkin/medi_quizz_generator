@@ -17,8 +17,11 @@ export enum QuestionType {
 export interface MCQ {
   id: string;
   stem: string;
-  options: MCQOption[];
-  correctAnswerId: string;
+  options?: MCQOption[];
+  /** For MCQ/TrueFalse questions, this is the id of the correct option */
+  correctAnswerId?: string;
+  /** For ShortAnswer (string) or TrueFalse (boolean) responses */
+  answer?: string | boolean;
   /** Explanation for why the correct answer is best */
   rationale: string;
   citation: Citation;
