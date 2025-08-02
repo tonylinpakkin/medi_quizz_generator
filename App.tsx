@@ -23,6 +23,7 @@ const AppContent: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'generate' | 'saved'>('generate');
   const [questionCount, setQuestionCount] = useState(1);
+  const [questionType, setQuestionType] = useState<QuestionType>(QuestionType.MCQ);
   const [runTour, setRunTour] = useState(false);
   const { t } = useLanguage();
 
@@ -38,7 +39,7 @@ const AppContent: React.FC = () => {
     }
   }, []);
 
-  const handleGenerateMCQ = useCallback(async (text: string, count = 1) => {
+  const handleGenerateQuestion = useCallback(async (text: string, count = 1) => {
     if (!text.trim()) {
       setError(t('pleaseEnterText'));
       return;
@@ -74,7 +75,7 @@ const AppContent: React.FC = () => {
       setQuestionCount(1);
       setCurrentMcqs([]);
     }
-  }, [t]);
+  }, [t, questionType]);
 
   const handleUpdateCurrentMCQ = useCallback((updatedMcq: Question) => {
     setCurrentMcqs(prev => prev.map(mcq => mcq.id === updatedMcq.id ? updatedMcq : mcq));
@@ -179,12 +180,14 @@ const AppContent: React.FC = () => {
             <ThesisInput
               text={inputText}
               onTextChange={setInputText}
-              onGenerate={handleGenerateMCQ}
+              onGenerate={handleGenerateQuestion}
               isLoading={apiState === APIState.Loading}
               onError={(fileError) => {
                 setError(fileError);
                 setApiState(APIState.Error);
               }}
+              questionType={questionType}
+              onQuestionTypeChange={setQuestionType}
             />
 
             {apiState === APIState.Loading && <LoadingOverlay />}

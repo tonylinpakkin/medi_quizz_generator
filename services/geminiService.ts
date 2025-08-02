@@ -150,3 +150,4 @@ export const generateMCQFromText = (
     current = 1,
     total = 1
 ): Promise<MCQQuestion> => generateQuestionFromText(text, QuestionType.MCQ, current, total) as Promise<MCQQuestion>;
+

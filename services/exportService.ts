@@ -7,10 +7,13 @@ export const exportMCQsToWord = async (mcqs: MCQ[]): Promise<void> => {
 
   mcqs.forEach((mcq, index) => {
     paragraphs.push(new Paragraph({ text: `${index + 1}. ${mcq.stem}` }));
-    mcq.options.forEach(opt => {
+    mcq.options?.forEach(opt => {
       paragraphs.push(new Paragraph({ text: `${opt.id}. ${opt.text}` }));
     });
-    paragraphs.push(new Paragraph({ text: `Answer: ${mcq.correctAnswerId}` }));
+    const answerText = mcq.correctAnswerId ?? mcq.answer;
+    if (answerText !== undefined) {
+      paragraphs.push(new Paragraph({ text: `Answer: ${answerText}` }));
+    }
     if (mcq.rationale) {
       paragraphs.push(new Paragraph({ text: `Rationale: ${mcq.rationale}` }));
     }
@@ -53,8 +56,9 @@ export const exportMCQsToPDF = (mcqs: MCQ[]): void => {
 
   mcqs.forEach((mcq, index) => {
     addWrappedText(`${index + 1}. ${mcq.stem}`, margin);
-    mcq.options.forEach(opt => { addWrappedText(`${opt.id}. ${opt.text}`, margin + 10); });
-    addWrappedText(`Answer: ${mcq.correctAnswerId}`, margin);
+    mcq.options?.forEach(opt => { addWrappedText(`${opt.id}. ${opt.text}`, margin + 10); });
+    const answerText = mcq.correctAnswerId ?? mcq.answer;
+    if (answerText !== undefined) { addWrappedText(`Answer: ${answerText}`, margin); }
     if (mcq.rationale) { addWrappedText(`Rationale: ${mcq.rationale}`, margin); }
     addWrappedText(`Source: ${mcq.citation.source}`, margin);
     y += 10;

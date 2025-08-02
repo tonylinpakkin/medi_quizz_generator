@@ -8,10 +8,14 @@ import type { MCQ } from '../types';
 export const mcqToPlainText = (mcq: MCQ): string => {
   const lines: string[] = [];
   lines.push(mcq.stem);
-  mcq.options.forEach(opt => {
+  mcq.options?.forEach(opt => {
     lines.push(`${opt.id}. ${opt.text}`);
   });
-  lines.push(`Answer: ${mcq.correctAnswerId}`);
+  if (mcq.correctAnswerId) {
+    lines.push(`Answer: ${mcq.correctAnswerId}`);
+  } else if (mcq.answer !== undefined) {
+    lines.push(`Answer: ${mcq.answer}`);
+  }
   if (mcq.rationale) {
     lines.push(`Rationale: ${mcq.rationale}`);
   }

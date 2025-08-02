@@ -21,6 +21,7 @@ interface QuestionBase {
   /** Explanation for why the correct answer is best */
   rationale: string;
   citation: Citation;
+  type?: QuestionType;
 }
 
 export interface MCQQuestion extends QuestionBase {
