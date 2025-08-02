@@ -5,10 +5,10 @@ import { ThesisInput } from './components/ThesisInput';
 import { MCQReviewCard } from './components/MCQReviewCard';
 import { SavedMCQList } from './components/SavedMCQList';
 import { Tour } from './components/Tour';
-import { generateMCQFromText } from './services/geminiService';
+import { generateQuestionFromText } from './services/geminiService';
 import { isMedicalContent } from './services/medicalClassifier';
 import { getAllMCQs, saveMCQ, deleteMCQ as deleteMCQFromDb } from './services/mcqStorage';
-import { MCQ, APIState } from './types';
+import { MCQ, APIState, QuestionType } from './types';
 import LoadingOverlay from './components/LoadingOverlay';
 import ErrorOverlay from './components/ErrorOverlay';
 import { ToastProvider, useToast } from './ToastContext';
@@ -23,6 +23,7 @@ const AppContent: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'generate' | 'saved'>('generate');
   const [questionCount, setQuestionCount] = useState(1);
+  const [questionType, setQuestionType] = useState<QuestionType>(QuestionType.MCQ);
   const [runTour, setRunTour] = useState(false);
   const { t } = useLanguage();
 
@@ -38,7 +39,7 @@ const AppContent: React.FC = () => {
     }
   }, []);
 
-  const handleGenerateMCQ = useCallback(async (text: string, count = 1) => {
+  const handleGenerateQuestion = useCallback(async (text: string, count = 1) => {
     if (!text.trim()) {
       setError(t('pleaseEnterText'));
       return;
@@ -60,7 +61,7 @@ const AppContent: React.FC = () => {
 
       const generated: MCQ[] = [];
       for (let i = 1; i <= count; i++) {
-        const mcq = await generateMCQFromText(text, i, count);
+        const mcq = await generateQuestionFromText(text, questionType, i, count);
         generated.push(mcq);
         setCurrentMcqs([...generated]);
       }
@@ -74,7 +75,7 @@ const AppContent: React.FC = () => {
       setQuestionCount(1);
       setCurrentMcqs([]);
     }
-  }, [t]);
+  }, [t, questionType]);
 
   const handleUpdateCurrentMCQ = useCallback((updatedMcq: MCQ) => {
     setCurrentMcqs(prev => prev.map(mcq => mcq.id === updatedMcq.id ? updatedMcq : mcq));
@@ -179,12 +180,14 @@ const AppContent: React.FC = () => {
             <ThesisInput
               text={inputText}
               onTextChange={setInputText}
-              onGenerate={handleGenerateMCQ}
+              onGenerate={handleGenerateQuestion}
               isLoading={apiState === APIState.Loading}
               onError={(fileError) => {
                 setError(fileError);
                 setApiState(APIState.Error);
               }}
+              questionType={questionType}
+              onQuestionTypeChange={setQuestionType}
             />
 
             {apiState === APIState.Loading && <LoadingOverlay />}

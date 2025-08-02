@@ -1,6 +1,7 @@
 
 import React, { useState, useMemo, useEffect } from 'react';
 import type { MCQ } from '../types';
+import { QuestionType } from '../types';
 import { detectBias } from '../services/biasDetector';
 import { AlertTriangleIcon, FileTextIcon, EditIcon, ClipboardIcon, TrashIcon, SaveIcon, CheckCircleIcon, ChevronDownIcon } from './icons';
 import { mcqToPlainText } from '../services/mcqFormatter';
@@ -26,7 +27,9 @@ export const MCQReviewCard: React.FC<MCQReviewCardProps> = ({ initialMcq, onUpda
   const { addToast } = useToast();
 
   const biasWarnings = useMemo(() => {
-    const allText = [mcq.stem, ...mcq.options.map(o => o.text)].join(' ');
+    const optionTexts = mcq.options?.map(o => o.text) ?? [];
+    const answerText = typeof mcq.answer === 'string' ? mcq.answer : '';
+    const allText = [mcq.stem, ...optionTexts, answerText].join(' ');
     return detectBias(allText);
   }, [mcq]);
   const flaggedWordsSet = useMemo(() => new Set(biasWarnings), [biasWarnings]);
@@ -39,6 +42,7 @@ export const MCQReviewCard: React.FC<MCQReviewCardProps> = ({ initialMcq, onUpda
   }, [mcq, isEditing, onUpdate]);
 
   const handleOptionChange = (optionId: string, newText: string) => {
+    if (!editedMcq.options) return;
     const newOptions = editedMcq.options.map(opt =>
       opt.id === optionId ? { ...opt, text: newText } : opt
     );
@@ -115,45 +119,65 @@ export const MCQReviewCard: React.FC<MCQReviewCardProps> = ({ initialMcq, onUpda
         </label>
 
         <div className="space-y-2">
-            <span className="font-semibold text-slate-600">{t('options')}</span>
-            {isEditing ? (
-              editedMcq.options.map((option) => (
-              <div key={option.id} className="flex items-center space-x-3">
+            {mcq.type === QuestionType.ShortAnswer ? (
+              <label className="block">
+                <span className="font-semibold text-slate-600">{t('answer')}</span>
+                {isEditing ? (
                   <input
-                      type="radio"
-                      name={`correctAnswer-edit-${mcq.id}`}
-                      id={`edit-option-${option.id}`}
-                      value={option.id}
-                      checked={editedMcq.correctAnswerId === option.id}
-                      onChange={(e) => setEditedMcq({ ...editedMcq, correctAnswerId: e.target.value })}
-                      className="h-5 w-5 text-blue-600 focus:ring-blue-500 border-slate-300"
+                    type="text"
+                    value={editedMcq.answer as string}
+                    onChange={(e) => setEditedMcq({ ...editedMcq, answer: e.target.value })}
+                    className="mt-1 w-full p-2 bg-yellow-50 border-2 border-blue-400 text-slate-900 rounded-md focus:ring-2 focus:ring-blue-500"
                   />
-                  <input
-                      type="text"
-                      value={option.text}
-                      onChange={(e) => handleOptionChange(option.id, e.target.value)}
-                      className="w-full p-2 bg-yellow-50 border-2 border-blue-400 text-slate-900 rounded-md focus:ring-2 focus:ring-blue-500"
-                  />
-              </div>
-              ))
+                ) : (
+                  <p className="mt-1 w-full p-2 bg-slate-50 text-slate-800 rounded-md border border-slate-200">
+                    {mcq.answer as string}
+                  </p>
+                )}
+              </label>
             ) : (
-              mcq.options.map((option) => (
-                <div key={option.id} className={`flex items-start p-2 rounded-md ${option.id === mcq.correctAnswerId ? 'bg-green-50' : 'bg-transparent'}`}>
-                  <input
-                      type="radio"
-                      name={`correctAnswer-read-${mcq.id}`}
-                      id={`read-option-${option.id}`}
-                      value={option.id}
-                      checked={mcq.correctAnswerId === option.id}
-                      onChange={(e) => setMcq({ ...mcq, correctAnswerId: e.target.value })}
-                      className="h-5 w-5 mt-0.5 text-blue-600 focus:ring-blue-500 border-slate-300"
-                  />
-                  <label htmlFor={`read-option-${option.id}`} className="ml-3 block text-sm text-slate-800">
-                    <BiasHighlightedText text={option.text} flaggedWords={flaggedWordsSet} />
-                  </label>
-                  {option.id === mcq.correctAnswerId && <CheckCircleIcon className="w-5 h-5 ml-auto text-green-600 flex-shrink-0" />}
-                </div>
-              ))
+              <>
+                <span className="font-semibold text-slate-600">{t('options')}</span>
+                {isEditing ? (
+                  editedMcq.options?.map((option) => (
+                    <div key={option.id} className="flex items-center space-x-3">
+                      <input
+                        type="radio"
+                        name={`correctAnswer-edit-${mcq.id}`}
+                        id={`edit-option-${option.id}`}
+                        value={option.id}
+                        checked={editedMcq.correctAnswerId === option.id}
+                        onChange={(e) => setEditedMcq({ ...editedMcq, correctAnswerId: e.target.value })}
+                        className="h-5 w-5 text-blue-600 focus:ring-blue-500 border-slate-300"
+                      />
+                      <input
+                        type="text"
+                        value={option.text}
+                        onChange={(e) => handleOptionChange(option.id, e.target.value)}
+                        className="w-full p-2 bg-yellow-50 border-2 border-blue-400 text-slate-900 rounded-md focus:ring-2 focus:ring-blue-500"
+                      />
+                    </div>
+                  ))
+                ) : (
+                  mcq.options?.map((option) => (
+                    <div key={option.id} className={`flex items-start p-2 rounded-md ${option.id === mcq.correctAnswerId ? 'bg-green-50' : 'bg-transparent'}`}>
+                      <input
+                        type="radio"
+                        name={`correctAnswer-read-${mcq.id}`}
+                        id={`read-option-${option.id}`}
+                        value={option.id}
+                        checked={mcq.correctAnswerId === option.id}
+                        onChange={(e) => setMcq({ ...mcq, correctAnswerId: e.target.value })}
+                        className="h-5 w-5 mt-0.5 text-blue-600 focus:ring-blue-500 border-slate-300"
+                      />
+                      <label htmlFor={`read-option-${option.id}`} className="ml-3 block text-sm text-slate-800">
+                        <BiasHighlightedText text={option.text} flaggedWords={flaggedWordsSet} />
+                      </label>
+                      {option.id === mcq.correctAnswerId && <CheckCircleIcon className="w-5 h-5 ml-auto text-green-600 flex-shrink-0" />}
+                    </div>
+                  ))
+                )}
+              </>
             )}
         </div>
         
