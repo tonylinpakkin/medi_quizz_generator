@@ -2,7 +2,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import type { MCQ } from '../types';
 import { detectBias } from '../services/biasDetector';
-import { AlertTriangleIcon, SaveIcon, FileTextIcon, EditIcon, ClipboardIcon } from './icons';
+import { AlertTriangleIcon, FileTextIcon, EditIcon, ClipboardIcon, TrashIcon } from './icons';
 import { mcqToPlainText } from '../services/mcqFormatter';
 import { useLanguage } from '../LanguageContext';
 
