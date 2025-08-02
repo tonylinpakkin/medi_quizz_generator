@@ -1,9 +1,11 @@
 import { describe, it, expect } from 'vitest';
 import { mcqToPlainText } from '../services/mcqFormatter';
 import type { MCQ } from '../types';
+import { QuestionType } from '../types';
 
 const mcq: MCQ = {
   id: '1',
+  type: QuestionType.MCQ,
   stem: 'Stem',
   options: [
     { id: 'A', text: 'Opt A' },

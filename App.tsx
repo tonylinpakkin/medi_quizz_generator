@@ -5,10 +5,10 @@ import { ThesisInput } from './components/ThesisInput';
 import { MCQReviewCard } from './components/MCQReviewCard';
 import { SavedMCQList } from './components/SavedMCQList';
 import { Tour } from './components/Tour';
-import { generateMCQFromText } from './services/geminiService';
+import { generateQuestionFromText } from './services/geminiService';
 import { isMedicalContent } from './services/medicalClassifier';
 import { getAllMCQs, saveMCQ, deleteMCQ as deleteMCQFromDb } from './services/mcqStorage';
-import { MCQ, APIState } from './types';
+import { Question, QuestionType, APIState } from './types';
 import LoadingOverlay from './components/LoadingOverlay';
 import ErrorOverlay from './components/ErrorOverlay';
 import { ToastProvider, useToast } from './ToastContext';
@@ -17,9 +17,9 @@ import { useLanguage } from './LanguageContext';
 const AppContent: React.FC = () => {
   const { addToast } = useToast();
   const [apiState, setApiState] = useState<APIState>(APIState.Idle);
-  const [currentMcqs, setCurrentMcqs] = useState<MCQ[]>([]);
+  const [currentMcqs, setCurrentMcqs] = useState<Question[]>([]);
   const [inputText, setInputText] = useState('');
-  const [savedMcqs, setSavedMcqs] = useState<MCQ[]>([]);
+  const [savedMcqs, setSavedMcqs] = useState<Question[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'generate' | 'saved'>('generate');
   const [questionCount, setQuestionCount] = useState(1);
@@ -58,9 +58,9 @@ const AppContent: React.FC = () => {
         return;
       }
 
-      const generated: MCQ[] = [];
+      const generated: Question[] = [];
       for (let i = 1; i <= count; i++) {
-        const mcq = await generateMCQFromText(text, i, count);
+        const mcq = await generateQuestionFromText(text, QuestionType.MCQ, i, count);
         generated.push(mcq);
         setCurrentMcqs([...generated]);
       }
@@ -76,7 +76,7 @@ const AppContent: React.FC = () => {
     }
   }, [t]);
 
-  const handleUpdateCurrentMCQ = useCallback((updatedMcq: MCQ) => {
+  const handleUpdateCurrentMCQ = useCallback((updatedMcq: Question) => {
     setCurrentMcqs(prev => prev.map(mcq => mcq.id === updatedMcq.id ? updatedMcq : mcq));
   }, []);
 
@@ -108,7 +108,7 @@ const AppContent: React.FC = () => {
     setCurrentMcqs(prev => prev.filter(mcq => mcq.id !== mcqId));
   }, []);
 
-  const handleSaveSingle = useCallback(async (mcq: MCQ) => {
+  const handleSaveSingle = useCallback(async (mcq: Question) => {
     try {
       await saveMCQ(mcq);
       setSavedMcqs(prev => [...prev, mcq]);
@@ -121,7 +121,7 @@ const AppContent: React.FC = () => {
     }
   }, [addToast, t]);
 
-  const handleUpdateSavedMCQ = useCallback((updatedMcq: MCQ) => {
+  const handleUpdateSavedMCQ = useCallback((updatedMcq: Question) => {
     saveMCQ(updatedMcq).catch(err => console.error('Failed to update MCQ', err));
     setSavedMcqs(prevMcqs => prevMcqs.map(mcq => mcq.id === updatedMcq.id ? updatedMcq : mcq));
   }, []);

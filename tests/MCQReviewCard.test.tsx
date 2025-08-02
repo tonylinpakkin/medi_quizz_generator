@@ -7,9 +7,11 @@ import { MCQReviewCard } from '../components/MCQReviewCard';
 import { LanguageProvider } from '../LanguageContext';
 import { ToastProvider } from '../ToastContext';
 import type { MCQ } from '../types';
+import { QuestionType } from '../types';
 
 const sampleMcq: MCQ = {
   id: '1',
+  type: QuestionType.MCQ,
   stem: 'Sample question?',
   options: [
     { id: 'a', text: 'Option A' },

@@ -8,15 +8,38 @@ export interface Citation {
   source: string;
 }
 
-export interface MCQ {
+export enum QuestionType {
+  MCQ = 'MCQ',
+  TRUE_FALSE = 'TRUE_FALSE',
+  SHORT_ANSWER = 'SHORT_ANSWER',
+}
+
+interface QuestionBase {
   id: string;
+  type: QuestionType;
   stem: string;
-  options: MCQOption[];
-  correctAnswerId: string;
   /** Explanation for why the correct answer is best */
   rationale: string;
   citation: Citation;
 }
+
+export interface MCQQuestion extends QuestionBase {
+  type: QuestionType.MCQ;
+  options: MCQOption[];
+  correctAnswerId: string;
+}
+
+export interface TrueFalseQuestion extends QuestionBase {
+  type: QuestionType.TRUE_FALSE;
+  answer: boolean;
+}
+
+export interface ShortAnswerQuestion extends QuestionBase {
+  type: QuestionType.SHORT_ANSWER;
+  answer: string;
+}
+
+export type Question = MCQQuestion | TrueFalseQuestion | ShortAnswerQuestion;
 
 export enum APIState {
     Idle,
@@ -24,3 +47,6 @@ export enum APIState {
     Success,
     Error,
 }
+
+// Backwards compatibility for existing MCQ usages
+export type MCQ = MCQQuestion;

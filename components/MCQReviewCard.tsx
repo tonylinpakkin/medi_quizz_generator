@@ -1,6 +1,7 @@
 
 import React, { useState, useMemo, useEffect } from 'react';
-import type { MCQ } from '../types';
+import type { Question } from '../types';
+import { QuestionType } from '../types';
 import { detectBias } from '../services/biasDetector';
 import { AlertTriangleIcon, FileTextIcon, EditIcon, ClipboardIcon, TrashIcon, SaveIcon, CheckCircleIcon, ChevronDownIcon } from './icons';
 import { mcqToPlainText } from '../services/mcqFormatter';
@@ -9,25 +10,28 @@ import { useToast } from '../ToastContext';
 import { BiasHighlightedText } from './BiasHighlightedText';
 
 interface MCQReviewCardProps {
-  initialMcq: MCQ;
-  onUpdate: (mcq: MCQ) => void;
+  initialMcq: Question;
+  onUpdate: (mcq: Question) => void;
   onDiscard: (id: string) => void;
-  onSave: (mcq: MCQ) => void;
+  onSave: (mcq: Question) => void;
   questionIndex: number;
   totalQuestions: number;
 }
 
 export const MCQReviewCard: React.FC<MCQReviewCardProps> = ({ initialMcq, onUpdate, onDiscard, onSave, questionIndex, totalQuestions }) => {
-  const [mcq, setMcq] = useState<MCQ>(initialMcq);
+  const [mcq, setMcq] = useState<Question>(initialMcq);
   const [isEditing, setIsEditing] = useState(false);
-  const [editedMcq, setEditedMcq] = useState<MCQ>(initialMcq);
+  const [editedMcq, setEditedMcq] = useState<Question>(initialMcq);
   const [isDetailsVisible, setIsDetailsVisible] = useState(false);
   const { t } = useLanguage();
   const { addToast } = useToast();
 
   const biasWarnings = useMemo(() => {
-    const allText = [mcq.stem, ...mcq.options.map(o => o.text)].join(' ');
-    return detectBias(allText);
+    const parts = [mcq.stem];
+    if (mcq.type === QuestionType.MCQ) {
+      parts.push(...mcq.options.map(o => o.text));
+    }
+    return detectBias(parts.join(' '));
   }, [mcq]);
   const flaggedWordsSet = useMemo(() => new Set(biasWarnings), [biasWarnings]);
 
@@ -39,6 +43,7 @@ export const MCQReviewCard: React.FC<MCQReviewCardProps> = ({ initialMcq, onUpda
   }, [mcq, isEditing, onUpdate]);
 
   const handleOptionChange = (optionId: string, newText: string) => {
+    if (editedMcq.type !== QuestionType.MCQ) return;
     const newOptions = editedMcq.options.map(opt =>
       opt.id === optionId ? { ...opt, text: newText } : opt
     );
@@ -47,7 +52,10 @@ export const MCQReviewCard: React.FC<MCQReviewCardProps> = ({ initialMcq, onUpda
 
   const handleCopy = async () => {
     try {
-      await navigator.clipboard.writeText(mcqToPlainText(mcq));
+      const textToCopy = mcq.type === QuestionType.MCQ
+        ? mcqToPlainText(mcq as any)
+        : `${mcq.stem}\nAnswer: ${mcq.answer ? 'True' : 'False'}`;
+      await navigator.clipboard.writeText(textToCopy);
       addToast(t('copySuccess'), 'info');
     } catch {
       addToast(t('copyFail'), 'error');
@@ -115,45 +123,100 @@ export const MCQReviewCard: React.FC<MCQReviewCardProps> = ({ initialMcq, onUpda
         </label>
 
         <div className="space-y-2">
-            <span className="font-semibold text-slate-600">{t('options')}</span>
-            {isEditing ? (
-              editedMcq.options.map((option) => (
-              <div key={option.id} className="flex items-center space-x-3">
-                  <input
-                      type="radio"
-                      name={`correctAnswer-edit-${mcq.id}`}
-                      id={`edit-option-${option.id}`}
-                      value={option.id}
-                      checked={editedMcq.correctAnswerId === option.id}
-                      onChange={(e) => setEditedMcq({ ...editedMcq, correctAnswerId: e.target.value })}
-                      className="h-5 w-5 text-blue-600 focus:ring-blue-500 border-slate-300"
-                  />
-                  <input
-                      type="text"
-                      value={option.text}
-                      onChange={(e) => handleOptionChange(option.id, e.target.value)}
-                      className="w-full p-2 bg-yellow-50 border-2 border-blue-400 text-slate-900 rounded-md focus:ring-2 focus:ring-blue-500"
-                  />
-              </div>
-              ))
+            {mcq.type === QuestionType.MCQ ? (
+              <>
+                <span className="font-semibold text-slate-600">{t('options')}</span>
+                {isEditing ? (
+                  (editedMcq.type === QuestionType.MCQ ? editedMcq.options : []).map((option) => (
+                    <div key={option.id} className="flex items-center space-x-3">
+                      <input
+                          type="radio"
+                          name={`correctAnswer-edit-${mcq.id}`}
+                          id={`edit-option-${option.id}`}
+                          value={option.id}
+                          checked={(editedMcq as any).correctAnswerId === option.id}
+                          onChange={(e) => setEditedMcq({ ...editedMcq, correctAnswerId: e.target.value })}
+                          className="h-5 w-5 text-blue-600 focus:ring-blue-500 border-slate-300"
+                      />
+                      <input
+                          type="text"
+                          value={option.text}
+                          onChange={(e) => handleOptionChange(option.id, e.target.value)}
+                          className="w-full p-2 bg-yellow-50 border-2 border-blue-400 text-slate-900 rounded-md focus:ring-2 focus:ring-blue-500"
+                      />
+                    </div>
+                  ))
+                ) : (
+                  mcq.options.map((option) => (
+                    <div key={option.id} className={`flex items-start p-2 rounded-md ${option.id === (mcq as any).correctAnswerId ? 'bg-green-50' : 'bg-transparent'}`}>
+                      <input
+                          type="radio"
+                          name={`correctAnswer-read-${mcq.id}`}
+                          id={`read-option-${option.id}`}
+                          value={option.id}
+                          checked={(mcq as any).correctAnswerId === option.id}
+                          onChange={(e) => setMcq({ ...mcq, correctAnswerId: e.target.value })}
+                          className="h-5 w-5 mt-0.5 text-blue-600 focus:ring-blue-500 border-slate-300"
+                      />
+                      <label htmlFor={`read-option-${option.id}`} className="ml-3 block text-sm text-slate-800">
+                        <BiasHighlightedText text={option.text} flaggedWords={flaggedWordsSet} />
+                      </label>
+                      {option.id === (mcq as any).correctAnswerId && <CheckCircleIcon className="w-5 h-5 ml-auto text-green-600 flex-shrink-0" />}
+                    </div>
+                  ))
+                )}
+              </>
             ) : (
-              mcq.options.map((option) => (
-                <div key={option.id} className={`flex items-start p-2 rounded-md ${option.id === mcq.correctAnswerId ? 'bg-green-50' : 'bg-transparent'}`}>
-                  <input
-                      type="radio"
-                      name={`correctAnswer-read-${mcq.id}`}
-                      id={`read-option-${option.id}`}
-                      value={option.id}
-                      checked={mcq.correctAnswerId === option.id}
-                      onChange={(e) => setMcq({ ...mcq, correctAnswerId: e.target.value })}
-                      className="h-5 w-5 mt-0.5 text-blue-600 focus:ring-blue-500 border-slate-300"
-                  />
-                  <label htmlFor={`read-option-${option.id}`} className="ml-3 block text-sm text-slate-800">
-                    <BiasHighlightedText text={option.text} flaggedWords={flaggedWordsSet} />
-                  </label>
-                  {option.id === mcq.correctAnswerId && <CheckCircleIcon className="w-5 h-5 ml-auto text-green-600 flex-shrink-0" />}
-                </div>
-              ))
+              <>
+                <span className="font-semibold text-slate-600">Answer</span>
+                {isEditing ? (
+                  <div className="flex items-center space-x-3">
+                    <label className="flex items-center space-x-2">
+                      <input
+                        type="radio"
+                        name={`tf-edit-${mcq.id}`}
+                        checked={editedMcq.answer === true}
+                        onChange={() => setEditedMcq({ ...editedMcq, answer: true })}
+                        className="h-5 w-5 text-blue-600 focus:ring-blue-500 border-slate-300"
+                      />
+                      <span>True</span>
+                    </label>
+                    <label className="flex items-center space-x-2">
+                      <input
+                        type="radio"
+                        name={`tf-edit-${mcq.id}`}
+                        checked={editedMcq.answer === false}
+                        onChange={() => setEditedMcq({ ...editedMcq, answer: false })}
+                        className="h-5 w-5 text-blue-600 focus:ring-blue-500 border-slate-300"
+                      />
+                      <span>False</span>
+                    </label>
+                  </div>
+                ) : (
+                  <div className="flex items-center space-x-3">
+                    <label className="flex items-center space-x-2">
+                      <input
+                        type="radio"
+                        name={`tf-read-${mcq.id}`}
+                        checked={mcq.answer === true}
+                        onChange={() => setMcq({ ...mcq, answer: true })}
+                        className="h-5 w-5 text-blue-600 focus:ring-blue-500 border-slate-300"
+                      />
+                      <span>True</span>
+                    </label>
+                    <label className="flex items-center space-x-2">
+                      <input
+                        type="radio"
+                        name={`tf-read-${mcq.id}`}
+                        checked={mcq.answer === false}
+                        onChange={() => setMcq({ ...mcq, answer: false })}
+                        className="h-5 w-5 text-blue-600 focus:ring-blue-500 border-slate-300"
+                      />
+                      <span>False</span>
+                    </label>
+                  </div>
+                )}
+              </>
             )}
         </div>
         

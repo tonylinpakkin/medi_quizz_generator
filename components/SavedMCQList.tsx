@@ -1,6 +1,7 @@
 
 import React, { useMemo, useState } from 'react';
-import type { MCQ } from '../types';
+import type { Question } from '../types';
+import { QuestionType } from '../types';
 import { detectBias } from '../services/biasDetector';
 import { EditIcon, TrashIcon, SaveIcon, FileTextIcon, CheckCircleIcon, AlertTriangleIcon, ClipboardIcon } from './icons';
 import { mcqToPlainText } from '../services/mcqFormatter';
@@ -12,8 +13,8 @@ import { BiasHighlightedText } from './BiasHighlightedText';
 
 
 interface SavedMCQItemProps {
-  mcq: MCQ;
-  onUpdate: (mcq: MCQ) => void;
+  mcq: Question;
+  onUpdate: (mcq: Question) => void;
   onDelete: (id:string) => void;
   isSelected: boolean;
   onSelectionChange: (id: string, isSelected: boolean) => void;
@@ -23,17 +24,23 @@ const SavedMCQItem: React.FC<SavedMCQItemProps> = ({ mcq, onUpdate, onDelete, is
   const { t } = useLanguage();
   const { addToast } = useToast();
   const [isEditing, setIsEditing] = useState(false);
-  const [editedMcq, setEditedMcq] = useState<MCQ>(mcq);
+  const [editedMcq, setEditedMcq] = useState<Question>(mcq);
 
   const biasWarnings = useMemo(() => {
-    const allText = [mcq.stem, ...mcq.options.map(o => o.text)].join(' ');
-    return detectBias(allText);
+    const parts = [mcq.stem];
+    if (mcq.type === QuestionType.MCQ) {
+      parts.push(...mcq.options.map(o => o.text));
+    }
+    return detectBias(parts.join(' '));
   }, [mcq]);
   const flaggedWordsSet = useMemo(() => new Set(biasWarnings), [biasWarnings]);
 
   const handleCopy = async () => {
     try {
-      await navigator.clipboard.writeText(mcqToPlainText(mcq));
+      const textToCopy = mcq.type === QuestionType.MCQ
+        ? mcqToPlainText(mcq as any)
+        : `${mcq.stem}\nAnswer: ${mcq.answer ? 'True' : 'False'}`;
+      await navigator.clipboard.writeText(textToCopy);
       addToast(t('copySuccess'), 'info');
     } catch {
       addToast(t('copyFail'), 'error');
@@ -74,38 +81,90 @@ const SavedMCQItem: React.FC<SavedMCQItemProps> = ({ mcq, onUpdate, onDelete, is
       )}
 
       <ul className="space-y-2">
-        {isEditing ? (
-          editedMcq.options.map(option => (
-            <li key={option.id} className="flex items-center space-x-3">
-              <input
-                type="radio"
-                name={`correctAnswer-${mcq.id}`}
-                value={option.id}
-                checked={editedMcq.correctAnswerId === option.id}
-                onChange={(e) => setEditedMcq({ ...editedMcq, correctAnswerId: e.target.value })}
-                className="h-5 w-5 text-blue-600 focus:ring-blue-500 border-slate-300"
-              />
-              <input
-                type="text"
-                value={option.text}
-                onChange={(e) => {
-                  const newOptions = editedMcq.options.map(o => o.id === option.id ? { ...o, text: e.target.value } : o);
-                  setEditedMcq({ ...editedMcq, options: newOptions });
-                }}
-                className="w-full p-2 bg-yellow-50 border-2 border-blue-400 text-slate-900 rounded-md focus:ring-2 focus:ring-blue-500"
-              />
-            </li>
-          ))
+        {mcq.type === QuestionType.MCQ ? (
+          isEditing ? (
+            editedMcq.type === QuestionType.MCQ ? editedMcq.options.map(option => (
+              <li key={option.id} className="flex items-center space-x-3">
+                <input
+                  type="radio"
+                  name={`correctAnswer-${mcq.id}`}
+                  value={option.id}
+                  checked={(editedMcq as any).correctAnswerId === option.id}
+                  onChange={(e) => setEditedMcq({ ...editedMcq, correctAnswerId: e.target.value })}
+                  className="h-5 w-5 text-blue-600 focus:ring-blue-500 border-slate-300"
+                />
+                <input
+                  type="text"
+                  value={option.text}
+                  onChange={(e) => {
+                    const newOptions = (editedMcq as any).options.map((o: any) => o.id === option.id ? { ...o, text: e.target.value } : o);
+                    setEditedMcq({ ...editedMcq, options: newOptions });
+                  }}
+                  className="w-full p-2 bg-yellow-50 border-2 border-blue-400 text-slate-900 rounded-md focus:ring-2 focus:ring-blue-500"
+                />
+              </li>
+            )) : null
+          ) : (
+            mcq.options.map(option => (
+              <li key={option.id} className={`flex items-start p-2 rounded-md ${option.id === (mcq as any).correctAnswerId ? 'bg-green-50' : 'bg-slate-50'}`}>
+                <span className={`font-mono mr-3 text-sm ${option.id === (mcq as any).correctAnswerId ? 'text-green-700 font-bold' : 'text-slate-500'}`}>{option.id}.</span>
+                <span className={option.id === (mcq as any).correctAnswerId ? 'text-green-900' : 'text-slate-800'}>
+                  <BiasHighlightedText text={option.text} flaggedWords={flaggedWordsSet} />
+                </span>
+                {option.id === (mcq as any).correctAnswerId && <CheckCircleIcon className="w-5 h-5 ml-auto text-green-600 flex-shrink-0" />}
+              </li>
+            ))
+          )
         ) : (
-          mcq.options.map(option => (
-            <li key={option.id} className={`flex items-start p-2 rounded-md ${option.id === mcq.correctAnswerId ? 'bg-green-50' : 'bg-slate-50'}`}>
-              <span className={`font-mono mr-3 text-sm ${option.id === mcq.correctAnswerId ? 'text-green-700 font-bold' : 'text-slate-500'}`}>{option.id}.</span>
-              <span className={option.id === mcq.correctAnswerId ? 'text-green-900' : 'text-slate-800'}>
-                <BiasHighlightedText text={option.text} flaggedWords={flaggedWordsSet} />
-              </span>
-              {option.id === mcq.correctAnswerId && <CheckCircleIcon className="w-5 h-5 ml-auto text-green-600 flex-shrink-0" />}
-            </li>
-          ))
+          <li className="flex items-center space-x-3">
+            {isEditing ? (
+              <div className="flex items-center space-x-4">
+                <label className="flex items-center space-x-2">
+                  <input
+                    type="radio"
+                    name={`tf-saved-${mcq.id}`}
+                    checked={editedMcq.answer === true}
+                    onChange={() => setEditedMcq({ ...editedMcq, answer: true })}
+                    className="h-5 w-5 text-blue-600 focus:ring-blue-500 border-slate-300"
+                  />
+                  <span>True</span>
+                </label>
+                <label className="flex items-center space-x-2">
+                  <input
+                    type="radio"
+                    name={`tf-saved-${mcq.id}`}
+                    checked={editedMcq.answer === false}
+                    onChange={() => setEditedMcq({ ...editedMcq, answer: false })}
+                    className="h-5 w-5 text-blue-600 focus:ring-blue-500 border-slate-300"
+                  />
+                  <span>False</span>
+                </label>
+              </div>
+            ) : (
+              <div className="flex items-center space-x-4">
+                <label className="flex items-center space-x-2">
+                  <input
+                    type="radio"
+                    name={`tf-saved-read-${mcq.id}`}
+                    checked={mcq.answer === true}
+                    onChange={() => onUpdate({ ...mcq, answer: true })}
+                    className="h-5 w-5 text-blue-600 focus:ring-blue-500 border-slate-300"
+                  />
+                  <span>True</span>
+                </label>
+                <label className="flex items-center space-x-2">
+                  <input
+                    type="radio"
+                    name={`tf-saved-read-${mcq.id}`}
+                    checked={mcq.answer === false}
+                    onChange={() => onUpdate({ ...mcq, answer: false })}
+                    className="h-5 w-5 text-blue-600 focus:ring-blue-500 border-slate-300"
+                  />
+                  <span>False</span>
+                </label>
+              </div>
+            )}
+          </li>
         )}
       </ul>
 
@@ -168,8 +227,8 @@ const SavedMCQItem: React.FC<SavedMCQItemProps> = ({ mcq, onUpdate, onDelete, is
 };
 
 interface SavedMCQListProps {
-  mcqs: MCQ[];
-  onUpdate: (mcq: MCQ) => void;
+  mcqs: Question[];
+  onUpdate: (mcq: Question) => void;
   onDelete: (id: string) => void;
   onDeleteSelected: (ids: string[]) => void;
   onSwitchToGenerateTab: () => void;
@@ -219,6 +278,7 @@ export const SavedMCQList: React.FC<SavedMCQListProps> = ({ mcqs, onUpdate, onDe
   };
 
   const selectedMcqs = mcqs.filter(mcq => selectedMcqIds.has(mcq.id));
+  const selectedMcqExports = selectedMcqs.filter(mcq => mcq.type === QuestionType.MCQ) as any;
   const allSelected = selectedMcqIds.size === mcqs.length && mcqs.length > 0;
 
   return (
@@ -227,14 +287,14 @@ export const SavedMCQList: React.FC<SavedMCQListProps> = ({ mcqs, onUpdate, onDe
         <h2 className="text-2xl font-bold text-slate-700">{t('savedQuestions')}</h2>
         <div className="space-x-3">
           <button
-            onClick={() => exportMCQsToWord(selectedMcqs)}
+            onClick={() => exportMCQsToWord(selectedMcqExports)}
             disabled={selectedMcqs.length === 0}
             className="px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-md hover:bg-slate-100 disabled:opacity-50"
           >
             {t('exportWord')}
           </button>
           <button
-            onClick={() => exportMCQsToPDF(selectedMcqs)}
+            onClick={() => exportMCQsToPDF(selectedMcqExports)}
             disabled={selectedMcqs.length === 0}
             className="px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-md hover:bg-slate-100 disabled:opacity-50"
           >

@@ -1,10 +1,10 @@
 import { openDB, DBSchema } from 'idb';
-import { MCQ } from '../types';
+import { Question } from '../types';
 
 interface MCQDB extends DBSchema {
   mcqs: {
     key: string;
-    value: MCQ;
+    value: Question;
   };
 }
 
@@ -14,11 +14,11 @@ const dbPromise = openDB<MCQDB>('mcq-db', 1, {
   },
 });
 
-export const getAllMCQs = async (): Promise<MCQ[]> => {
+export const getAllMCQs = async (): Promise<Question[]> => {
   return (await dbPromise).getAll('mcqs');
 };
 
-export const saveMCQ = async (mcq: MCQ): Promise<void> => {
+export const saveMCQ = async (mcq: Question): Promise<void> => {
   await (await dbPromise).put('mcqs', mcq);
 };
 

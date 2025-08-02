@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import type { MCQ } from '../types';
+import { QuestionType } from '../types';
 
 vi.mock('docx', () => {
   return {
@@ -36,6 +37,7 @@ import { jsPDF } from 'jspdf';
 const mcqs: MCQ[] = [
   {
     id: '1',
+    type: QuestionType.MCQ,
     stem: 'Stem',
     options: [
       { id: 'A', text: 'Opt A' },
