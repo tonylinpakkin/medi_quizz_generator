@@ -4,7 +4,6 @@ import { Header } from './components/Header';
 import { ThesisInput } from './components/ThesisInput';
 import { MCQReviewCard } from './components/MCQReviewCard';
 import { SavedMCQList } from './components/SavedMCQList';
-import { ProgressIndicator } from './components/ProgressIndicator';
 import { Tour } from './components/Tour';
 import { generateMCQFromText } from './services/geminiService';
 import { isMedicalContent } from './services/medicalClassifier';
@@ -25,8 +24,6 @@ const App: React.FC = () => {
   const [questionCount, setQuestionCount] = useState(1);
   const [runTour, setRunTour] = useState(false);
   const { t } = useLanguage();
-
-  const currentStep = currentMcqs.length > 0 ? 2 : activeTab === 'saved' ? 3 : 1;
 
   useEffect(() => {
     getAllMCQs().then(setSavedMcqs).catch((err) => {
@@ -85,48 +82,54 @@ const App: React.FC = () => {
     }
   }, [t]);
 
-  const handleSaveMCQ = (mcqToSave: MCQ) => {
-    saveMCQ(mcqToSave).catch(err => console.error('Failed to save MCQ', err));
-    setSavedMcqs(prevMcqs => {
-      const existingIndex = prevMcqs.findIndex(mcq => mcq.id === mcqToSave.id);
-      if (existingIndex > -1) {
-        const newMcqs = [...prevMcqs];
-        newMcqs[existingIndex] = mcqToSave;
-        return newMcqs;
-      } else {
-        return [...prevMcqs, mcqToSave];
+  const handleUpdateCurrentMCQ = useCallback((updatedMcq: MCQ) => {
+    setCurrentMcqs(prev => prev.map(mcq => mcq.id === updatedMcq.id ? updatedMcq : mcq));
+  }, []);
+
+  const handleSaveAll = useCallback(async () => {
+    try {
+      for (const mcq of currentMcqs) {
+        await saveMCQ(mcq);
       }
-    });
-    setCurrentMcqs(prev => {
-      const remaining = prev.filter(mcq => mcq.id !== mcqToSave.id);
-      if (remaining.length === 0) {
-        setApiState(APIState.Idle);
-        setQuestionCount(1);
-      }
-      return remaining;
-    });
-    setSuccess(t('saveSuccess'));
-  };
+      setSavedMcqs(prev => [...prev, ...currentMcqs]);
+      setCurrentMcqs([]);
+      setApiState(APIState.Idle);
+      setQuestionCount(1);
+      setSuccess(t('saveSuccessMultiple', { count: currentMcqs.length }));
+    } catch (err) {
+      console.error('Failed to save all MCQs', err);
+      setError(t('failedSave'));
+      setApiState(APIState.Error);
+    }
+  }, [currentMcqs, t]);
   
-  const handleCancelReview = () => {
+  const handleDiscardAll = useCallback(() => {
     setCurrentMcqs([]);
     setApiState(APIState.Idle);
     setError(null);
     setQuestionCount(1);
-  };
+  }, []);
 
-  const handleEditMCQ = (mcqId: string) => {
-    const mcqToEdit = savedMcqs.find(mcq => mcq.id === mcqId);
-    if (mcqToEdit) {
-      setCurrentMcqs([mcqToEdit]);
-      setApiState(APIState.Success);
-    }
-  };
+  const handleDiscardSingle = useCallback((mcqId: string) => {
+    setCurrentMcqs(prev => prev.filter(mcq => mcq.id !== mcqId));
+  }, []);
+
+  const handleUpdateSavedMCQ = useCallback((updatedMcq: MCQ) => {
+    saveMCQ(updatedMcq).catch(err => console.error('Failed to update MCQ', err));
+    setSavedMcqs(prevMcqs => prevMcqs.map(mcq => mcq.id === updatedMcq.id ? updatedMcq : mcq));
+  }, []);
   
-  const handleDeleteMCQ = (mcqId: string) => {
+  const handleDeleteMCQ = useCallback((mcqId: string) => {
     deleteMCQFromDb(mcqId).catch(err => console.error('Failed to delete MCQ', err));
     setSavedMcqs(prevMcqs => prevMcqs.filter(mcq => mcq.id !== mcqId));
-  };
+  }, []);
+
+  const handleDeleteSelectedMCQs = useCallback((mcqIds: string[]) => {
+    mcqIds.forEach(mcqId => {
+      deleteMCQFromDb(mcqId).catch(err => console.error('Failed to delete MCQ', err));
+    });
+    setSavedMcqs(prevMcqs => prevMcqs.filter(mcq => !mcqIds.includes(mcq.id)));
+  }, []);
 
   const handleTourClose = () => {
     setRunTour(false);
@@ -163,8 +166,6 @@ const App: React.FC = () => {
           {t('savedTab')}
           </button>
         </nav>
-        <ProgressIndicator step={currentStep} />
-
         {success && (
           <div className="mb-6 p-4 bg-green-100 border border-green-300 text-green-800 rounded-lg flex items-center justify-between">
             <span>{success}</span>
@@ -177,55 +178,71 @@ const App: React.FC = () => {
           </div>
         )}
 
-        {currentMcqs.length > 0 ? (
-          <div className="space-y-6 animate-fade-in">
-            {currentMcqs.map((mcq, idx) => (
-              <MCQReviewCard
-                key={mcq.id}
-                initialMcq={mcq}
-                onSave={handleSaveMCQ}
-                onCancel={handleCancelReview}
-                questionIndex={idx + 1}
-                totalQuestions={questionCount}
-              />
-            ))}
-          </div>
-        ) : (
+        {activeTab === 'generate' && (
           <>
-            {activeTab === 'generate' && (
-              <>
-                <ThesisInput
-                  text={inputText}
-                  onTextChange={setInputText}
-                  onGenerate={handleGenerateMCQ}
-                  isLoading={apiState === APIState.Loading}
-                />
+            <ThesisInput
+              text={inputText}
+              onTextChange={setInputText}
+              onGenerate={handleGenerateMCQ}
+              isLoading={apiState === APIState.Loading}
+            />
 
-                {apiState === APIState.Loading && (
-                  <LoadingOverlay />
-                )}
+            {apiState === APIState.Loading && <LoadingOverlay />}
 
-                {apiState === APIState.Error && error && (
-                  <ErrorOverlay
-                    message={error}
-                    onClose={() => {
-                      setApiState(APIState.Idle);
-                      setError(null);
-                      setQuestionCount(1);
-                    }}
-                  />
-                )}
-              </>
+            {apiState === APIState.Error && error && (
+              <ErrorOverlay
+                message={error}
+                onClose={() => {
+                  setApiState(APIState.Idle);
+                  setError(null);
+                  setQuestionCount(1);
+                }}
+              />
             )}
 
-            {activeTab === 'saved' && (
-              <SavedMCQList
-                mcqs={savedMcqs}
-                onEdit={handleEditMCQ}
-                onDelete={handleDeleteMCQ}
-              />
+            {currentMcqs.length > 0 && (
+              <div className="mt-8 animate-fade-in">
+                <div className="flex justify-between items-center mb-4">
+                  <h2 className="text-2xl font-bold text-slate-700">{t('reviewDraft')}</h2>
+                  <div className="flex space-x-3">
+                    <button
+                      onClick={handleSaveAll}
+                      className="px-6 py-2 bg-blue-600 text-white font-semibold rounded-md shadow-sm hover:bg-blue-700"
+                    >
+                      {t('saveAll')}
+                    </button>
+                    <button
+                      onClick={handleDiscardAll}
+                      className="px-6 py-2 bg-white text-slate-700 font-semibold rounded-md border border-slate-300 hover:bg-slate-100"
+                    >
+                      {t('discardAll')}
+                    </button>
+                  </div>
+                </div>
+                <div className="space-y-6">
+                  {currentMcqs.map((mcq, idx) => (
+                    <MCQReviewCard
+                      key={mcq.id}
+                      initialMcq={mcq}
+                      onUpdate={handleUpdateCurrentMCQ}
+                      onDiscard={handleDiscardSingle}
+                      questionIndex={idx + 1}
+                      totalQuestions={questionCount}
+                    />
+                  ))}
+                </div>
+              </div>
             )}
           </>
+        )}
+
+        {activeTab === 'saved' && (
+          <SavedMCQList
+            mcqs={savedMcqs}
+                onUpdate={handleUpdateSavedMCQ}
+            onDelete={handleDeleteMCQ}
+                onDeleteSelected={handleDeleteSelectedMCQs}
+          />
         )}
       </main>
       <footer className="text-center py-4 text-sm text-slate-400">
