@@ -12,11 +12,12 @@ interface MCQReviewCardProps {
   initialMcq: MCQ;
   onUpdate: (mcq: MCQ) => void;
   onDiscard: (id: string) => void;
+  onSave: (mcq: MCQ) => void;
   questionIndex: number;
   totalQuestions: number;
 }
 
-export const MCQReviewCard: React.FC<MCQReviewCardProps> = ({ initialMcq, onUpdate, onDiscard, questionIndex, totalQuestions }) => {
+export const MCQReviewCard: React.FC<MCQReviewCardProps> = ({ initialMcq, onUpdate, onDiscard, onSave, questionIndex, totalQuestions }) => {
   const [mcq, setMcq] = useState<MCQ>(initialMcq);
   const [isEditing, setIsEditing] = useState(false);
   const [editedMcq, setEditedMcq] = useState<MCQ>(initialMcq);
@@ -208,6 +209,13 @@ export const MCQReviewCard: React.FC<MCQReviewCardProps> = ({ initialMcq, onUpda
           </>
         ) : (
           <>
+            <button
+              onClick={() => onSave(mcq)}
+              className="flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700"
+            >
+              <SaveIcon className="w-4 h-4 mr-2" />
+              {t('saveQuestion')}
+            </button>
             <button
               onClick={handleCopy}
               type="button"

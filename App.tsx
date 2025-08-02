@@ -108,6 +108,19 @@ const AppContent: React.FC = () => {
     setCurrentMcqs(prev => prev.filter(mcq => mcq.id !== mcqId));
   }, []);
 
+  const handleSaveSingle = useCallback(async (mcq: MCQ) => {
+    try {
+      await saveMCQ(mcq);
+      setSavedMcqs(prev => [...prev, mcq]);
+      setCurrentMcqs(prev => prev.filter(m => m.id !== mcq.id));
+      addToast(t('saveSuccess'), 'success');
+    } catch (err) {
+      console.error('Failed to save MCQ', err);
+      setError(t('failedSave'));
+      setApiState(APIState.Error);
+    }
+  }, [addToast, t]);
+
   const handleUpdateSavedMCQ = useCallback((updatedMcq: MCQ) => {
     saveMCQ(updatedMcq).catch(err => console.error('Failed to update MCQ', err));
     setSavedMcqs(prevMcqs => prevMcqs.map(mcq => mcq.id === updatedMcq.id ? updatedMcq : mcq));
@@ -213,6 +226,7 @@ const AppContent: React.FC = () => {
                       initialMcq={mcq}
                       onUpdate={handleUpdateCurrentMCQ}
                       onDiscard={handleDiscardSingle}
+                      onSave={handleSaveSingle}
                       questionIndex={idx + 1}
                       totalQuestions={questionCount}
                     />
