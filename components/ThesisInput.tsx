@@ -9,6 +9,7 @@ interface ThesisInputProps {
   onTextChange: (text: string) => void;
   onGenerate: (text: string, count: number) => void;
   isLoading: boolean;
+  onError: (message: string) => void;
 }
 
 export const ThesisInput: React.FC<ThesisInputProps> = ({
@@ -16,6 +17,7 @@ export const ThesisInput: React.FC<ThesisInputProps> = ({
   onTextChange,
   onGenerate,
   isLoading,
+  onError,
 }) => {
   const [reading, setReading] = useState(false);
   const [questionCount, setQuestionCount] = useState(1);
@@ -33,7 +35,7 @@ export const ThesisInput: React.FC<ThesisInputProps> = ({
       const fileText = await parseFile(file);
       onTextChange(fileText);
     } catch (err) {
-      alert(t('fileReadError'));
+      onError(t('fileReadError'));
     } finally {
       setReading(false);
     }

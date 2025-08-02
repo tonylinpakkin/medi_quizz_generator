@@ -11,16 +11,17 @@ import { getAllMCQs, saveMCQ, deleteMCQ as deleteMCQFromDb } from './services/mc
 import { MCQ, APIState } from './types';
 import LoadingOverlay from './components/LoadingOverlay';
 import ErrorOverlay from './components/ErrorOverlay';
+import { ToastProvider, useToast } from './ToastContext';
 import { useLanguage } from './LanguageContext';
 
-const App: React.FC = () => {
+const AppContent: React.FC = () => {
+  const { addToast } = useToast();
   const [apiState, setApiState] = useState<APIState>(APIState.Idle);
   const [currentMcqs, setCurrentMcqs] = useState<MCQ[]>([]);
   const [inputText, setInputText] = useState('');
   const [savedMcqs, setSavedMcqs] = useState<MCQ[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'generate' | 'saved'>('generate');
-  const [success, setSuccess] = useState<string | null>(null);
   const [questionCount, setQuestionCount] = useState(1);
   const [runTour, setRunTour] = useState(false);
   const { t } = useLanguage();
@@ -36,13 +37,6 @@ const App: React.FC = () => {
       setRunTour(true);
     }
   }, []);
-
-  useEffect(() => {
-    if (success) {
-      const timer = setTimeout(() => setSuccess(null), 3000);
-      return () => clearTimeout(timer);
-    }
-  }, [success]);
 
   const handleGenerateMCQ = useCallback(async (text: string, count = 1) => {
     if (!text.trim()) {
@@ -95,7 +89,7 @@ const App: React.FC = () => {
       setCurrentMcqs([]);
       setApiState(APIState.Idle);
       setQuestionCount(1);
-      setSuccess(t('saveSuccessMultiple', { count: currentMcqs.length }));
+      addToast(t('saveSuccessMultiple', { count: currentMcqs.length }), 'success');
     } catch (err) {
       console.error('Failed to save all MCQs', err);
       setError(t('failedSave'));
@@ -166,17 +160,6 @@ const App: React.FC = () => {
           {t('savedTab')}
           </button>
         </nav>
-        {success && (
-          <div className="mb-6 p-4 bg-green-100 border border-green-300 text-green-800 rounded-lg flex items-center justify-between">
-            <span>{success}</span>
-            <button
-              onClick={() => setActiveTab('saved')}
-              className="ml-4 px-3 py-1 text-sm font-semibold text-green-800 bg-green-200 rounded hover:bg-green-300 transition-colors"
-            >
-              {t('viewSaved')}
-            </button>
-          </div>
-        )}
 
         {activeTab === 'generate' && (
           <>
@@ -185,6 +168,10 @@ const App: React.FC = () => {
               onTextChange={setInputText}
               onGenerate={handleGenerateMCQ}
               isLoading={apiState === APIState.Loading}
+              onError={(fileError) => {
+                setError(fileError);
+                setApiState(APIState.Error);
+              }}
             />
 
             {apiState === APIState.Loading && <LoadingOverlay />}
@@ -239,9 +226,10 @@ const App: React.FC = () => {
         {activeTab === 'saved' && (
           <SavedMCQList
             mcqs={savedMcqs}
-                onUpdate={handleUpdateSavedMCQ}
+            onUpdate={handleUpdateSavedMCQ}
             onDelete={handleDeleteMCQ}
-                onDeleteSelected={handleDeleteSelectedMCQs}
+            onDeleteSelected={handleDeleteSelectedMCQs}
+            onSwitchToGenerateTab={() => setActiveTab('generate')}
           />
         )}
       </main>
@@ -251,5 +239,11 @@ const App: React.FC = () => {
     </div>
   );
 };
+
+const App: React.FC = () => (
+  <ToastProvider>
+    <AppContent />
+  </ToastProvider>
+);
 
 export default App;

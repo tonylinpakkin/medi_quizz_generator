@@ -6,36 +6,9 @@ import { EditIcon, TrashIcon, SaveIcon, FileTextIcon, CheckCircleIcon, AlertTria
 import { mcqToPlainText } from '../services/mcqFormatter';
 import { exportMCQsToWord, exportMCQsToPDF } from '../services/exportService';
 import { useLanguage } from '../LanguageContext';
-
-// A re-usable component to highlight potentially biased text
-const BiasHighlightedText: React.FC<{text: string; flaggedWords: Set<string>}> = ({ text, flaggedWords }) => {
-    const { t } = useLanguage();
-    if (flaggedWords.size === 0) {
-        return <>{text}</>;
-    }
-
-    const escapedWords = Array.from(flaggedWords).map(word => word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
-    const regex = new RegExp(`\\b(${escapedWords.join('|')})\\b`, 'gi');
-    
-    // Handle cases where the text might be null or undefined
-    if(!text) return null;
-    
-    const parts = text.split(regex);
-
-    return (
-        <>
-            {parts.map((part, i) =>
-                flaggedWords.has(part.toLowerCase()) ? (
-                    <mark key={i} className="bg-yellow-200 px-1 rounded" title={t('potentialBiasShort')}>
-                        {part}
-                    </mark>
-                ) : (
-                    part
-                )
-            )}
-        </>
-    );
-};
+import { useToast } from '../ToastContext';
+import { PlusCircleIcon } from './icons';
+import { BiasHighlightedText } from './BiasHighlightedText';
 
 
 interface SavedMCQItemProps {
@@ -48,7 +21,7 @@ interface SavedMCQItemProps {
 
 const SavedMCQItem: React.FC<SavedMCQItemProps> = ({ mcq, onUpdate, onDelete, isSelected, onSelectionChange }) => {
   const { t } = useLanguage();
-  const [copied, setCopied] = useState(false);
+  const { addToast } = useToast();
   const [isEditing, setIsEditing] = useState(false);
   const [editedMcq, setEditedMcq] = useState<MCQ>(mcq);
 
@@ -61,10 +34,9 @@ const SavedMCQItem: React.FC<SavedMCQItemProps> = ({ mcq, onUpdate, onDelete, is
   const handleCopy = async () => {
     try {
       await navigator.clipboard.writeText(mcqToPlainText(mcq));
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
+      addToast(t('copySuccess'), 'info');
     } catch {
-      // ignore copy errors
+      addToast(t('copyFail'), 'error');
     }
   };
 
@@ -178,7 +150,7 @@ const SavedMCQItem: React.FC<SavedMCQItemProps> = ({ mcq, onUpdate, onDelete, is
           <>
             <button onClick={handleCopy} className="flex items-center px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-md hover:bg-slate-100 transition-colors">
               <ClipboardIcon className="w-4 h-4 mr-2" />
-              {copied ? t('copied') : t('copy')}
+              {t('copy')}
             </button>
             <button onClick={() => setIsEditing(true)} className="flex items-center px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-md hover:bg-slate-100 transition-colors">
               <EditIcon className="w-4 h-4 mr-2" />
@@ -200,14 +172,30 @@ interface SavedMCQListProps {
   onUpdate: (mcq: MCQ) => void;
   onDelete: (id: string) => void;
   onDeleteSelected: (ids: string[]) => void;
+  onSwitchToGenerateTab: () => void;
 }
 
-export const SavedMCQList: React.FC<SavedMCQListProps> = ({ mcqs, onUpdate, onDelete, onDeleteSelected }) => {
+export const SavedMCQList: React.FC<SavedMCQListProps> = ({ mcqs, onUpdate, onDelete, onDeleteSelected, onSwitchToGenerateTab }) => {
   const { t } = useLanguage();
   const [selectedMcqIds, setSelectedMcqIds] = useState(new Set<string>());
 
   if (mcqs.length === 0) {
-    return null;
+    return (
+      <div className="text-center py-16 px-6 bg-white rounded-lg shadow-md border border-slate-200">
+        <PlusCircleIcon className="mx-auto h-12 w-12 text-slate-400" />
+        <h3 className="mt-4 text-lg font-semibold text-slate-800">{t('noSavedQuestionsTitle')}</h3>
+        <p className="mt-2 text-sm text-slate-500">{t('noSavedQuestionsBody')}</p>
+        <div className="mt-6">
+          <button
+            type="button"
+            onClick={onSwitchToGenerateTab}
+            className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+          >
+            {t('generateYourFirstMCQ')}
+          </button>
+        </div>
+      </div>
+    );
   }
 
   const handleSelectionChange = (id: string, isSelected: boolean) => {
