@@ -83,11 +83,11 @@ const App: React.FC = () => {
     }
   }, [t]);
 
-  const handleUpdateCurrentMCQ = (updatedMcq: MCQ) => {
+  const handleUpdateCurrentMCQ = useCallback((updatedMcq: MCQ) => {
     setCurrentMcqs(prev => prev.map(mcq => mcq.id === updatedMcq.id ? updatedMcq : mcq));
-  };
+  }, []);
 
-  const handleSaveAll = async () => {
+  const handleSaveAll = useCallback(async () => {
     try {
       for (const mcq of currentMcqs) {
         await saveMCQ(mcq);
@@ -102,35 +102,35 @@ const App: React.FC = () => {
       setError(t('failedSave'));
       setApiState(APIState.Error);
     }
-  };
+  }, [currentMcqs, t]);
   
-  const handleDiscardAll = () => {
+  const handleDiscardAll = useCallback(() => {
     setCurrentMcqs([]);
     setApiState(APIState.Idle);
     setError(null);
     setQuestionCount(1);
-  };
+  }, []);
 
-  const handleDiscardSingle = (mcqId: string) => {
+  const handleDiscardSingle = useCallback((mcqId: string) => {
     setCurrentMcqs(prev => prev.filter(mcq => mcq.id !== mcqId));
-  };
+  }, []);
 
-  const handleUpdateSavedMCQ = (updatedMcq: MCQ) => {
+  const handleUpdateSavedMCQ = useCallback((updatedMcq: MCQ) => {
     saveMCQ(updatedMcq).catch(err => console.error('Failed to update MCQ', err));
     setSavedMcqs(prevMcqs => prevMcqs.map(mcq => mcq.id === updatedMcq.id ? updatedMcq : mcq));
-  };
+  }, []);
   
-  const handleDeleteMCQ = (mcqId: string) => {
+  const handleDeleteMCQ = useCallback((mcqId: string) => {
     deleteMCQFromDb(mcqId).catch(err => console.error('Failed to delete MCQ', err));
     setSavedMcqs(prevMcqs => prevMcqs.filter(mcq => mcq.id !== mcqId));
-  };
+  }, []);
 
-  const handleDeleteSelectedMCQs = (mcqIds: string[]) => {
+  const handleDeleteSelectedMCQs = useCallback((mcqIds: string[]) => {
     mcqIds.forEach(mcqId => {
       deleteMCQFromDb(mcqId).catch(err => console.error('Failed to delete MCQ', err));
     });
     setSavedMcqs(prevMcqs => prevMcqs.filter(mcq => !mcqIds.includes(mcq.id)));
-  };
+  }, []);
 
   const handleTourClose = () => {
     setRunTour(false);
