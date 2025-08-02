@@ -11,7 +11,7 @@ export const Header: React.FC = () => {
           <BrainCircuitIcon className="w-10 h-10 text-blue-600" />
           <div>
             <h1 className="text-2xl font-bold text-slate-800">MCQ Drafter AI</h1>
-            <p className="text-sm text-slate-500">Generate exam questions from your research in seconds.</p>
+            <p className="text-sm text-slate-500">Upload or paste medical research to instantly create medically validated, exportable multiple-choice questions with AI.</p>
           </div>
         </div>
         <LanguageToggle />
