@@ -1,5 +1,5 @@
 
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { Header } from './components/Header';
 import { ThesisInput } from './components/ThesisInput';
 import { QuestionReviewCard } from './components/QuestionReviewCard';
@@ -26,6 +26,19 @@ const AppContent: React.FC = () => {
   const [questionType, setQuestionType] = useState<QuestionType>(QuestionType.MultipleChoice);
   const [runTour, setRunTour] = useState(false);
   const { t } = useLanguage();
+
+  const generateTabRef = useRef<HTMLButtonElement>(null);
+  const savedTabRef = useRef<HTMLButtonElement>(null);
+
+  const handleTabKeyDown = useCallback((event: React.KeyboardEvent<HTMLButtonElement>) => {
+    if (event.key === 'ArrowRight' || event.key === 'ArrowLeft') {
+      event.preventDefault();
+      const nextTab = event.currentTarget === generateTabRef.current ? 'saved' : 'generate';
+      setActiveTab(nextTab);
+      const nextRef = nextTab === 'generate' ? generateTabRef : savedTabRef;
+      nextRef.current?.focus();
+    }
+  }, []);
 
   useEffect(() => {
     getAllQuestions().then(setSavedQuestions).catch((err) => {
@@ -150,8 +163,13 @@ const AppContent: React.FC = () => {
       <Tour run={runTour} onClose={handleTourClose} />
       <Header />
       <main className="container mx-auto px-4 py-8 max-w-4xl">
-        <nav className="mb-6 border-b border-slate-200 flex space-x-2">
+        <nav role="tablist" className="mb-6 border-b border-slate-200 flex space-x-2">
           <button
+            role="tab"
+            aria-selected={activeTab === 'generate'}
+            tabIndex={activeTab === 'generate' ? 0 : -1}
+            ref={generateTabRef}
+            onKeyDown={handleTabKeyDown}
             id="tour-generate-tab"
             className={`px-4 py-2 rounded-t shadow-sm ${
               activeTab === 'generate'
@@ -163,6 +181,11 @@ const AppContent: React.FC = () => {
             {t('generateTab')}
           </button>
           <button
+            role="tab"
+            aria-selected={activeTab === 'saved'}
+            tabIndex={activeTab === 'saved' ? 0 : -1}
+            ref={savedTabRef}
+            onKeyDown={handleTabKeyDown}
             id="tour-saved-tab"
             className={`px-4 py-2 rounded-t shadow-sm ${
               activeTab === 'saved'
