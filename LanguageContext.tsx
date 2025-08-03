@@ -4,6 +4,9 @@ export type Language = 'en' | 'zh-Hant';
 
 const translations: Record<Language, Record<string, string>> = {
   en: {
+    appTitle: 'Question Drafter AI',
+    appTagline: 'Upload or paste medical research to instantly create medically validated, exportable questions with AI.',
+    examplePlaceholder: 'e.g., "Primary aldosteronism is the most common cause of secondary hypertension, with recent studies suggesting a prevalence of 5-10% in hypertensive populations..."',
     pasteParagraph: '1. Paste Text or Upload a File',
     provideParagraph: 'Paste a paragraph in the box or upload a PDF, Word or text file. The AI will use this context to create questions.',
     uploadFile: 'Upload document (PDF, Word, or text)',
@@ -69,6 +72,9 @@ const translations: Record<Language, Record<string, string>> = {
     tourLanguageToggle: 'You can change the language of the application here.',
   },
   'zh-Hant': {
+    appTitle: 'Question Drafter AI',
+    appTagline: '上傳或貼上醫學研究資料，AI 即可立即生成經醫學驗證、可匯出的題目。',
+    examplePlaceholder: '例如：「原發性醛固酮症是繼發性高血壓最常見的原因，最近研究顯示在高血壓族群中的盛行率為5-10%……」',
     pasteParagraph: '1. \u8CBC\u4E0A\u6587\u5B57\u6216\u4E0A\u50B3\u6A94\u6848',
     provideParagraph: '\u63D0\u4F9B\u6BB5\u843D\u6216\u4E0A\u50B3 PDF/Word/\u6587\u672C\u6A94\uFF0CAI \u6703\u4F7F\u7528\u6B64\u5167\u5BB9\u7522\u751F\u984C\u76EE\u3002',
     uploadFile: '\u4E0A\u50B3 PDF\u3001Word \u6216\u6587\u672C\u6A94',
