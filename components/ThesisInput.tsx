@@ -54,7 +54,7 @@ export const ThesisInput: React.FC<ThesisInputProps> = ({
         id="tour-thesis-input"
         value={text}
         onChange={(e) => onTextChange(e.target.value)}
-        placeholder="e.g., 'Primary aldosteronism is the most common cause of secondary hypertension, with recent studies suggesting a prevalence of 5-10% in hypertensive populations...'"
+        placeholder={t('examplePlaceholder')}
         className="w-full h-48 p-3 bg-white border border-slate-400 rounded-md text-slate-900 placeholder:text-slate-500 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-shadow duration-200 resize-y disabled:bg-slate-200 disabled:text-slate-500 disabled:cursor-not-allowed"
         disabled={isLoading || reading}
       />
