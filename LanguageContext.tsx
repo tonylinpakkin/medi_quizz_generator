@@ -70,6 +70,7 @@ const translations: Record<Language, Record<string, string>> = {
     tourGenerateTab: 'This is the tab for generating new questions.',
     tourSavedTab: 'This is the tab for viewing your saved questions.',
     tourLanguageToggle: 'You can change the language of the application here.',
+    language: 'Language',
   },
   'zh-Hant': {
     appTitle: 'Question Drafter AI',
@@ -136,6 +137,7 @@ const translations: Record<Language, Record<string, string>> = {
     onboardStep3: '\u5132\u5B58\u984C\u76EE\u6216\u532F\u51FA Word/PDF\u3002',
     onboardGotIt: '\u77E5\u9053\u4E86\uff01',
     close: '\u95DC\u9589',
+    language: '\u8A9E\u8A00',
   },
 };
 
