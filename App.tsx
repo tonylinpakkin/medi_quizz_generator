@@ -2,6 +2,7 @@
 import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { Header } from './components/Header';
 import { ThesisInput } from './components/ThesisInput';
+import { GenerateOptions } from './components/GenerateOptions';
 import { QuestionReviewCard } from './components/QuestionReviewCard';
 import { SavedQuestionList } from './components/SavedQuestionList';
 import { Tour } from './components/Tour';
@@ -24,6 +25,7 @@ const AppContent: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'generate' | 'saved'>('generate');
   const [questionCount, setQuestionCount] = useState(1);
   const [questionType, setQuestionType] = useState<QuestionType>(QuestionType.MultipleChoice);
+  const [isReading, setIsReading] = useState(false);
   const [runTour, setRunTour] = useState(false);
   const { t } = useLanguage();
 
@@ -203,14 +205,23 @@ const AppContent: React.FC = () => {
             <ThesisInput
               text={inputText}
               onTextChange={setInputText}
-              onGenerate={handleGenerateQuestion}
               isLoading={apiState === APIState.Loading}
               onError={(fileError) => {
                 setError(fileError);
                 setApiState(APIState.Error);
               }}
+              onReadingChange={setIsReading}
+            />
+
+            <GenerateOptions
+              questionCount={questionCount}
+              onQuestionCountChange={setQuestionCount}
               questionType={questionType}
               onQuestionTypeChange={setQuestionType}
+              onGenerate={() => handleGenerateQuestion(inputText, questionCount)}
+              isLoading={apiState === APIState.Loading}
+              isReading={isReading}
+              text={inputText}
             />
 
             {apiState === APIState.Loading && <LoadingOverlay />}
