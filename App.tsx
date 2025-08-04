@@ -14,6 +14,7 @@ import LoadingOverlay from './components/LoadingOverlay';
 import ErrorOverlay from './components/ErrorOverlay';
 import { ToastProvider, useToast } from './ToastContext';
 import { useLanguage } from './LanguageContext';
+import { SourceContext } from './components/SourceContext';
 
 const AppContent: React.FC = () => {
   const { addToast } = useToast();
@@ -239,7 +240,8 @@ const AppContent: React.FC = () => {
 
             {currentQuestions.length > 0 && (
               <div className="mt-8 animate-fade-in">
-                <div className="flex justify-between items-center mb-4">
+                <SourceContext sourceText={inputText} />
+                <div className="flex justify-between items-center mb-4 mt-8">
                   <h2 className="text-2xl font-bold text-slate-700">{t('reviewDraft')}</h2>
                   <div className="flex space-x-3">
                     <button
