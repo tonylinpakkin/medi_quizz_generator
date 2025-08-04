@@ -6,6 +6,8 @@ export interface QuestionOption {
 
 export interface Citation {
   source: string;
+  /** Contextual snippet from the source material */
+  context?: string;
 }
 
 export enum QuestionType {

@@ -18,6 +18,9 @@ export const exportQuestionsToWord = async (questions: Question[]): Promise<void
       paragraphs.push(new Paragraph({ text: `Rationale: ${question.rationale}` }));
     }
     paragraphs.push(new Paragraph({ text: `Source: ${question.citation.source}` }));
+    if (question.citation.context) {
+      paragraphs.push(new Paragraph({ text: `Source Context: ${question.citation.context}` }));
+    }
     paragraphs.push(new Paragraph({ text: '' }));
   });
 
@@ -61,6 +64,7 @@ export const exportQuestionsToPDF = (questions: Question[]): void => {
     if (answerText !== undefined) { addWrappedText(`Answer: ${answerText}`, margin); }
     if (question.rationale) { addWrappedText(`Rationale: ${question.rationale}`, margin); }
     addWrappedText(`Source: ${question.citation.source}`, margin);
+    if (question.citation.context) { addWrappedText(`Source Context: ${question.citation.context}`, margin); }
     y += 10;
   });
 

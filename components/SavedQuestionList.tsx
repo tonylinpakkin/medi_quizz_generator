@@ -132,6 +132,12 @@ const SavedQuestionItem: React.FC<SavedQuestionItemProps> = ({ question, onUpdat
             <FileTextIcon className="w-4 h-4 text-slate-400"/>
             <span>{question.citation.source}</span>
         </div>
+        {question.citation.context && (
+          <>
+            <h4 className="mt-2 font-semibold text-slate-600">{t('sourceContext')}</h4>
+            <p className="mt-1 text-sm text-slate-600 bg-slate-50 p-2 rounded-md border border-slate-200 whitespace-pre-wrap">{question.citation.context}</p>
+          </>
+        )}
       </div>
 
       {isEditing ? (

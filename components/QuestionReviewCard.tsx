@@ -190,6 +190,15 @@ export const QuestionReviewCard: React.FC<QuestionReviewCardProps> = ({ initialQ
                 </div>
             </div>
 
+            {question.citation.context && (
+              <div>
+                <h4 className="font-semibold text-slate-600">{t('sourceContext')}</h4>
+                <p className="mt-1 w-full p-2 bg-slate-50 text-slate-800 rounded-md border border-slate-200 whitespace-pre-wrap">
+                  {question.citation.context}
+                </p>
+              </div>
+            )}
+
             <label className="block">
               <span className="font-semibold text-slate-600">{t('answerRationale')}</span>
               {isEditing ? (

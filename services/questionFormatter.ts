@@ -20,5 +20,8 @@ export const questionToPlainText = (question: Question): string => {
     lines.push(`Rationale: ${question.rationale}`);
   }
   lines.push(`Source: ${question.citation.source}`);
+  if (question.citation.context) {
+    lines.push(`Source Context: ${question.citation.context}`);
+  }
   return lines.join('\n');
 };
