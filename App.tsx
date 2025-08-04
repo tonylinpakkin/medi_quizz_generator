@@ -3,7 +3,7 @@ import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { Header } from './components/Header';
 import { ThesisInput } from './components/ThesisInput';
 import { GenerateOptions } from './components/GenerateOptions';
-import { QuestionReviewCard } from './components/QuestionReviewCard';
+import { ReviewQuestionsPage } from './components/ReviewQuestionsPage';
 import { SavedQuestionList } from './components/SavedQuestionList';
 import { Tour } from './components/Tour';
 import { generateQuestionFromText } from './services/geminiService';
@@ -238,38 +238,15 @@ const AppContent: React.FC = () => {
             )}
 
             {currentQuestions.length > 0 && (
-              <div className="mt-8 animate-fade-in">
-                <div className="flex justify-between items-center mb-4">
-                  <h2 className="text-2xl font-bold text-slate-700">{t('reviewDraft')}</h2>
-                  <div className="flex space-x-3">
-                    <button
-                      onClick={handleSaveAll}
-                      className="px-6 py-2 bg-blue-600 text-white font-semibold rounded-md shadow-sm hover:bg-blue-700"
-                    >
-                      {t('saveAll')}
-                    </button>
-                    <button
-                      onClick={handleDiscardAll}
-                      className="px-6 py-2 bg-white text-slate-700 font-semibold rounded-md border border-slate-300 hover:bg-slate-100"
-                    >
-                      {t('discardAll')}
-                    </button>
-                  </div>
-                </div>
-                <div className="space-y-6">
-                  {currentQuestions.map((question, idx) => (
-                    <QuestionReviewCard
-                      key={question.id}
-                      initialQuestion={question}
-                      onUpdate={handleUpdateCurrentQuestion}
-                      onDiscard={handleDiscardSingle}
-                      onSave={handleSaveSingle}
-                      questionIndex={idx + 1}
-                      totalQuestions={questionCount}
-                    />
-                  ))}
-                </div>
-              </div>
+              <ReviewQuestionsPage
+                questions={currentQuestions}
+                totalQuestions={questionCount}
+                onUpdateQuestion={handleUpdateCurrentQuestion}
+                onDiscardQuestion={handleDiscardSingle}
+                onSaveQuestion={handleSaveSingle}
+                onSaveAll={handleSaveAll}
+                onDiscardAll={handleDiscardAll}
+              />
             )}
           </>
         )}
