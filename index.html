@@ -1,26 +1,102 @@
-
 <!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-M" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Question Drafter AI</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-  <script type="importmap">
-{
-  "imports": {
-    "react": "https://esm.sh/react@^19.1.0",
-    "react-dom/": "https://esm.sh/react-dom@^19.1.0/",
-    "react/": "https://esm.sh/react@^19.1.0/",
-    "@google/genai": "https://esm.sh/@google/genai@^1.9.0",
-  }
-}
-</script>
-<link rel="stylesheet" href="/index.css">
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Question Drafter AI</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
+<style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
 </head>
-  <body class="bg-slate-50">
-    <div id="root"></div>
-    <script type="module" src="/index.tsx"></script>
-  </body>
-</html>
+<body class="bg-gray-50">
+<div class="min-h-screen flex flex-col">
+<header class="bg-white border-b border-gray-200">
+<div class="container mx-auto px-4 sm:px-6 lg:px-8">
+<div class="flex items-center justify-between h-20">
+<div class="flex items-center space-x-4">
+<div class="bg-blue-500 p-2 rounded-lg">
+<span class="material-icons text-white text-3xl">biotech</span>
+</div>
+<div>
+<h1 class="text-xl font-bold text-gray-800">Question Drafter AI</h1>
+<p class="text-sm text-gray-500">Upload or paste medical research to instantly create medically validated, exportable questions with AI.</p>
+</div>
+</div>
+<div class="flex items-center">
+<button class="flex items-center space-x-2 text-sm text-gray-600 hover:text-gray-900">
+<span>English</span>
+<span class="material-icons">expand_more</span>
+</button>
+</div>
+</div>
+</div>
+</header>
+<main class="flex-grow container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+<div class="flex space-x-8 mb-8">
+<button class="pb-2 border-b-2 border-blue-500 text-blue-500 font-semibold">Generate Question</button>
+<button class="pb-2 border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 font-medium">Saved Questions</button>
+</div>
+<div class="bg-white p-8 rounded-2xl shadow-sm border border-gray-200">
+<h2 class="text-lg font-semibold text-gray-900 mb-2">1. Paste Text or Upload a File</h2>
+<p class="text-sm text-gray-500 mb-6">Paste a paragraph in the box or upload a PDF, Word or text file. The AI will use this context to create questions.</p>
+<div class="relative">
+<textarea class="w-full h-40 p-4 border border-gray-300 rounded-lg resize-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="e.g., “Primary aldosteronism is the most common cause of secondary hypertension, with recent studies suggesting a prevalence of 5-10% in hypertensive populations...”"></textarea>
+<div class="absolute bottom-4 right-4 bg-blue-500 rounded-full p-1 cursor-grab">
+<span class="material-icons text-white" style="font-size: 16px;">drag_indicator</span>
+</div>
+</div>
+<div class="mt-6 flex items-center justify-between">
+<div>
+<label class="cursor-pointer inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50" for="file-upload">
+<span class="material-icons mr-2" style="font-size: 20px;">upload_file</span>
+                            Choose File
+                        </label>
+<input class="sr-only" id="file-upload" name="file-upload" type="file"/>
+<span class="ml-3 text-sm text-gray-500">No file chosen</span>
+<p class="text-xs text-gray-400 mt-1 ml-12">Upload document (PDF, Word, or text)</p>
+</div>
+</div>
+</div>
+<div class="bg-white p-8 rounded-2xl shadow-sm border border-gray-200 mt-8">
+<div class="flex items-center justify-between">
+<div class="flex items-center space-x-6">
+<div class="flex items-center space-x-2">
+<label class="text-sm font-medium text-gray-700" for="num-questions">Number of questions</label>
+<select class="w-20 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm" id="num-questions">
+<option>1</option>
+<option>2</option>
+<option>3</option>
+<option>4</option>
+<option>5</option>
+</select>
+</div>
+<div class="flex items-center space-x-2">
+<label class="text-sm font-medium text-gray-700" for="question-type">Question Type</label>
+<select class="border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm" id="question-type">
+<option>MultipleChoice</option>
+<option>True/False</option>
+<option>Short Answer</option>
+</select>
+</div>
+</div>
+<button class="inline-flex items-center px-6 py-3 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-500 hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+<span class="material-icons mr-2">auto_awesome</span>
+                        Generate Question
+                    </button>
+</div>
+</div>
+</main>
+<footer class="bg-white mt-auto">
+<div class="container mx-auto py-4 px-4 sm:px-6 lg:px-8">
+<p class="text-center text-sm text-gray-500">© 2024 Question Drafter AI. For educational and research purposes only.</p>
+</div>
+</footer>
+<button class="fixed bottom-6 right-6 bg-gray-800 text-white rounded-full p-3 shadow-lg hover:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-800">
+<span class="material-icons">chat_bubble</span>
+</button>
+</div>
+</body></html>
