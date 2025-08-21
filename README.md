@@ -1,18 +1,25 @@
-# Run and deploy your AI Studio app
+# Medical Quiz Generator
 
-This contains everything you need to run your app locally.
+This is a medical quiz generator that creates multiple choice, true/false, and short answer questions from medical texts using Google's Generative AI.
 
 ## Run Locally
 
 **Prerequisites:**  Node.js (version 18 or later)
 
-
 1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
+   ```
+   npm install
+   ```
+
+2. Set up your API key:
+   - Copy `.env.local.example` to `.env.local`
+   - Get your Google AI API key from [Google AI Studio](https://aistudio.google.com/app/apikey)
+   - Set `GEMINI_API_KEY` in `.env.local` to your API key
 
 3. Run the app:
-  `npm run dev`
+   ```
+   npm run dev
+   ```
 
 ## Medical Content Only
 
@@ -25,10 +32,10 @@ You can now paste text **or upload PDF, Word and text files** in the Generate Qu
 Execute unit tests with [Vitest](https://vitest.dev/):
 
 ```
-npm test
+npm run test
 ```
 
-The test suite mocks the Gemini API so it does not require a real API key or network access.
+The test suite mocks the Google Generative AI API so it does not require a real API key or network access.
 
 ## Export Saved Questions
 
